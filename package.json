@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "cross-env NODE_ENV=dev vue-cli-service serve",
+    "build": "cross-env NODE_ENV=production vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "electron": "cross-env NODE_ENV=dev electron index.js",
+    "package": "electron-packager . --overwrite"
   },
   "dependencies": {
+    "amnesiaclapp": "git+https://github.com/veeenu/amnesiaclapp.git",
     "core-js": "^2.6.5",
+    "electron": "^5.0.0",
     "vue": "^2.6.10"
   },
   "devDependencies": {
@@ -16,8 +20,14 @@
     "@vue/cli-plugin-eslint": "^3.7.0",
     "@vue/cli-service": "^3.7.0",
     "babel-eslint": "^10.0.1",
+    "cross-env": "^5.2.0",
+    "electron-packager": "^13.1.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "pug": "^2.0.3",
+    "pug-plain-loader": "^1.0.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "vue-template-compiler": "^2.5.21"
   },
   "eslintConfig": {
