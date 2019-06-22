@@ -4,7 +4,7 @@ Just a minimal Sekiro trainer for practicing speedruns. I made it out of conveni
 
 ## Download
 
-[Here!](https://github.com/veeenu/sekiro-practice-tool/releases)
+You can find the latest release [here](https://github.com/veeenu/sekiro-practice-tool/releases).
 
 ## Build
 
