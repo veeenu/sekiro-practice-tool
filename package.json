@@ -7,10 +7,10 @@
     "build": "cross-env NODE_ENV=production vue-cli-service build",
     "lint": "vue-cli-service lint",
     "electron": "cross-env NODE_ENV=dev electron index.js",
-    "package": "electron-packager . --overwrite"
+    "package": "electron-packager . --overwrite --icon=public/sidekiro.png --prune=true"
   },
   "dependencies": {
-    "amnesiaclapp": "git+https://github.com/veeenu/amnesiaclapp.git",
+    "amnesiaclapp": "github:veeenu/amnesiaclapp",
     "core-js": "^2.6.5",
     "electron": "^5.0.0",
     "vue": "^2.6.10"
