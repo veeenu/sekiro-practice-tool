@@ -70,3 +70,13 @@ bool MemoryState::toggle_consume () {
 void MemoryState::quitout () {
   *Quitout() = 1;
 }
+
+std::tuple<float, float, float, float, float, float> MemoryState::get_position() const {
+  float *px = x(), *py = y(), *pz = z();
+  return std::make_tuple(
+    px == nullptr ? 0.f : *px,
+    py == nullptr ? 0.f : *py,
+    pz == nullptr ? 0.f : *pz,
+    stored_x, stored_y, stored_z
+  );
+};

@@ -27,9 +27,11 @@ class PointerChain {
     std::vector<uint64_t> chain;
   public:
     PointerChain(std::vector<uint64_t> _chain) : chain(_chain) {};
-    T* operator() () {
+    T* operator() () const {
       uint64_t* p = reinterpret_cast<uint64_t*>(chain[0]);
+      if ((void*)p == nullptr) return nullptr;
       for (int i = 1; i < chain.size(); i++) {
+        if ((void*)*p == nullptr) return nullptr;
         p = (uint64_t*)(*p + chain[i]);
       }
       return reinterpret_cast<T*>(p);
@@ -68,6 +70,8 @@ class MemoryState {
     bool toggle_no_damage ();
     bool toggle_consume ();
     void quitout();
+
+    std::tuple<float, float, float, float, float, float> get_position() const;
 };
 
 #undef P

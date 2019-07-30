@@ -8,6 +8,9 @@ std::vector<std::string> allowed_nodes {
   "show", "collision", "stealth", "ai", "consume",
   "no_damage", "quitout", "load_pos", "save_pos"
 };
+std::vector<std::string> allowed_settings {
+  "enabled", "debug"
+};
 
 std::string get_config_file_name () {
   char szExeFileName[MAX_PATH]; 
@@ -216,6 +219,9 @@ Config::Config () {
   mappings.emplace("save_pos", VK_F7);
   mappings.emplace("load_pos", VK_F1);
 
+  settings.emplace("enabled", "true");
+  settings.emplace("debug", "false");
+
   auto conf_name = get_config_file_name();
   if (!PathFileExistsA(conf_name.c_str())) {
     save();
@@ -226,9 +232,19 @@ Config::Config () {
 
 void Config::save () {
   auto tbl = cpptoml::make_table();
+
+  auto mappings_tbl = cpptoml::make_table();
   for (auto& i : mappings) {
-    tbl->insert(i.first, string_hotkey_mappings.at(i.second));
+    mappings_tbl->insert(i.first, string_hotkey_mappings.at(i.second));
   }
+
+  auto settings_tbl = cpptoml::make_table();
+  for (auto& i : settings) {
+    settings_tbl->insert(i.first, i.second);
+  }
+
+  tbl->insert("mappings", mappings_tbl);
+  tbl->insert("settings", settings_tbl);
 
   std::ofstream f (get_config_file_name());
 
@@ -238,26 +254,44 @@ void Config::save () {
 void Config::load () {
   auto root = cpptoml::parse_file(get_config_file_name());
 
+  auto mappings_node = root->get_table("mappings");
+  auto settings_node = root->get_table("settings");
+
   for (auto& i : allowed_nodes) {
-    auto v = root->get_qualified_as<std::string>(i);
+    auto v = mappings_node->get_qualified_as<std::string>(i);
     if (!v) continue;
     auto& f = hotkey_string_mappings.find(*v);
     if (f != hotkey_string_mappings.end()) {
-      mappings.emplace(i, (*f).second);
+      mappings[i] = (*f).second;
       std::cout << "Mapping " << i << " -> " << (*f).first << std::endl;
     } else {
       std::cout << "Keycode " << *v << " for command " << i << " not found! Using default" << std::endl;
     }
   }
+
+  for (auto& i : allowed_settings) {
+    auto v = settings_node->get_qualified_as<std::string>(i);
+    if (!v) continue;
+    std::cout << "Setting " <<  i << " -> " << (*v) << std::endl;
+    settings[i] = *v;
+    auto& r = settings.find(i);
+    std::cout << "Check: " << (*r).second << std::endl;
+  }
 }
 
-DWORD Config::operator[] (std::string i) {
+DWORD Config::operator[] (std::string i) const {
   auto& r = mappings.find(i);
 
   // Very bad but can't be arsed
   /* if (r == mappings.end()) {
     throw;
   }*/
+
+  return (*r).second;
+}
+
+std::string Config::setting (const std::string& i)  const{
+  auto& r = settings.find(i);
 
   return (*r).second;
 }

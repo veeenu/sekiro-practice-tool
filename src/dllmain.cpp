@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 #include "ui.h"
+#include "config.h"
 
 typedef HRESULT(__fastcall *IDXGISwapChainPresent)(IDXGISwapChain *pSwapChain,
                                                    UINT SyncInterval,
@@ -22,7 +23,7 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg,
 
 void MakeConsole() {
   AllocConsole();
-  SetConsoleTitle(L"[+] Hooking DirectX 11 by Niemand");
+  SetConsoleTitle(L"Sekiro Practice Tool DLL by johndisandonato");
   freopen("CONOUT$", "w", stdout);
   freopen("CONOUT$", "w", stderr);
   freopen("CONIN$", "r", stdin);
@@ -65,7 +66,7 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 HRESULT __fastcall Present(IDXGISwapChain *pChain, UINT SyncInterval,
                            UINT Flags) {
   if (!initialized) {
-    std::cout << "Initializing" << std::endl;
+    std::cout << "Initializing DirectX" << std::endl;
     if (FAILED(GetDeviceAndCtxFromSwapchain(pChain, &pDevice, &pContext)))
       return fnIDXGISwapChainPresent(pChain, SyncInterval, Flags);
 
@@ -116,7 +117,19 @@ HRESULT __fastcall Present(IDXGISwapChain *pChain, UINT SyncInterval,
 
 DWORD WINAPI run_thread(LPVOID param) {
   MakeConsole();
-  std::cout << "Ciao!" << std::endl;
+
+  auto cfg = Config::Instance();
+  auto s_true = std::string("true");
+  std::cout << "Setting: " << cfg.setting("enabled") << std::endl;
+  if (cfg.setting("enabled") != s_true) {
+    return 0;
+  }
+
+  if (cfg.setting("debug") == s_true) {
+    // unimplemented
+  }
+
+  std::cout << "Hooking functions..." << std::endl;
 
   DWORD_PTR hDxgi = (DWORD_PTR)GetModuleHandle(L"dxgi.dll");
 

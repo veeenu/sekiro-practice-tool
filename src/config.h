@@ -17,12 +17,15 @@ class Config {
     std::unordered_map<std::string, DWORD> hotkey_string_mappings;
     std::unordered_map<DWORD, std::string> string_hotkey_mappings;
 
+    std::unordered_map<std::string, std::string> settings;
+
     void save ();
     void load ();
 
   public:
     static Config& Instance();
 
-    DWORD operator[] (std::string i);
+    DWORD operator[] (std::string i) const;
+    std::string setting (const std::string& i) const;
     const std::string& repr (std::string i);
 };

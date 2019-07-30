@@ -3,7 +3,7 @@
 #include "tinyformat.h"
 #include <windows.h>
 
-Command::Command(const callback& _fn, const uint64_t _key) : fn(_fn), key(_key) {}
+Command::Command(const callback& _fn, const std::string& _label, const uint64_t _key) : fn(_fn), label(_label), key(_key) {}
 
 void Command::set_key(const uint64_t k) {
   key = k;
@@ -13,7 +13,12 @@ const uint64_t Command::get_key() const {
   return key;
 }
 
+const std::string& Command::get_label() const {
+  return label;
+}
+
 void Command::operator() () {
+  std::cout << "Executing command " << label << std::endl;
   fn();
 }
 
@@ -30,39 +35,39 @@ UI::UI () {
   // Toggle
   commands.push_back(Command([this]() {
     show_window = !show_window;
-  }, cfg["show"]));
+  }, "show", cfg["show"]));
 
   commands.push_back(Command([this]() {
     collision = state.toggle_collision();
-  }, cfg["collision"]));
+  }, "collision", cfg["collision"]));
 
   commands.push_back(Command([this]() {
     stealth = state.toggle_stealth();
-  }, cfg["stealth"]));
+  }, "stealth", cfg["stealth"]));
 
   commands.push_back(Command([this]() {
     ai = state.toggle_ai();
-  }, cfg["ai"]));
+  }, "ai", cfg["ai"]));
 
   commands.push_back(Command([this]() {
     no_damage = state.toggle_no_damage();
-  }, cfg["no_damage"]));
+  }, "no_damage", cfg["no_damage"]));
 
   commands.push_back(Command([this]() {
     consume = state.toggle_consume();
-  }, cfg["consume"]));
+  }, "consume", cfg["consume"]));
 
   commands.push_back(Command([this]() {
     state.save_pos();
-  }, cfg["save_pos"]));
+  }, "save_pos", cfg["save_pos"]));
 
   commands.push_back(Command([this]() {
     state.load_pos();
-  }, cfg["load_pos"]));
+  }, "load_pos", cfg["load_pos"]));
 
   commands.push_back(Command([this]() {
     state.quitout();
-  }, cfg["quitout"]));
+  }, "quitout", cfg["quitout"]));
 }
 
 UI& const UI::Instance () {
@@ -82,18 +87,26 @@ void UI::Render() {
     }
   }
 
-  ImGui::SetNextWindowPos(ImVec2(0.025, 0.025));
-  ImGui::SetNextWindowSize(ImVec2(0.3, 0.3));
-
   if (show_window) {
-    ImGui::Checkbox(tfm::format("Collision Meshes (%s)", cfg.repr("collision")).c_str(), &collision);
-    ImGui::Checkbox(tfm::format("Stealth (%s)", cfg.repr("stealth")).c_str(), &stealth);
-    ImGui::Checkbox(tfm::format("AI Freeze (%s)", cfg.repr("ai")).c_str(), &ai);
-    ImGui::Checkbox(tfm::format("No Damage (%s)", cfg.repr("no_damage")).c_str(), &no_damage);
-    ImGui::Checkbox(tfm::format("Consume (%s)", cfg.repr("consume")).c_str(), &consume);
-    ImGui::Text(tfm::format("Quitout (%s)", cfg.repr("quitout")).c_str());
-    ImGui::Text(tfm::format("Load Position (%s)", cfg.repr("load_pos")).c_str());
-    ImGui::Text(tfm::format("Save Position (%s)", cfg.repr("save_pos")).c_str());
+    if (ImGui::Begin("Practice tool")) {
+      ImGui::SetWindowPos(ImVec2(25., 25.));
+      ImGui::SetWindowSize(ImVec2(400., 300.));
+      ImGui::Checkbox(tfm::format("Collision Meshes (%s)", cfg.repr("collision")).c_str(), &collision);
+      ImGui::Checkbox(tfm::format("Stealth (%s)", cfg.repr("stealth")).c_str(), &stealth);
+      ImGui::Checkbox(tfm::format("AI Freeze (%s)", cfg.repr("ai")).c_str(), &ai);
+      ImGui::Checkbox(tfm::format("No Damage (%s)", cfg.repr("no_damage")).c_str(), &no_damage);
+      ImGui::Checkbox(tfm::format("Consume (%s)", cfg.repr("consume")).c_str(), &consume);
+      //ImGui::Text(tfm::format("Load Position (%s)", cfg.repr("load_pos")).c_str());
+      //ImGui::Text(tfm::format("Save Position (%s)", cfg.repr("save_pos")).c_str());
+      auto pos = state.get_position();
+      ImGui::Text(tfm::format("Current Position: (Load %s | Save %s)\n(% 12.5f, % 12.5f, % 12.5f)", 
+        cfg.repr("load_pos"), cfg.repr("save_pos"),
+        std::get<0>(pos), std::get<1>(pos), std::get<2>(pos)).c_str());
+      ImGui::Text(tfm::format("  Saved Position:\n(% 12.5f, % 12.5f, % 12.5f)",
+        std::get<3>(pos), std::get<4>(pos), std::get<5>(pos)).c_str());
+      ImGui::Text(tfm::format("Quitout (%s)", cfg.repr("quitout")).c_str());
+    }
+    ImGui::End();
   }
 
   for (int i = 0; i < 512; i++) {

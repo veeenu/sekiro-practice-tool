@@ -14,12 +14,14 @@ typedef std::function<void(void)> callback;
 class Command {
   private:
     callback fn;
+    std::string label;
     uint64_t key;
 
   public:
-    Command(const callback& _fn, uint64_t _key);
+    Command(const callback& _fn, const std::string& _label, uint64_t _key);
     void set_key(const uint64_t k);
     const uint64_t get_key() const;
+    const std::string& get_label() const;
     void operator() ();
 };
 
