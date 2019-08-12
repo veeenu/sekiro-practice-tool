@@ -144,15 +144,21 @@ DWORD WINAPI run_thread(LPVOID param) {
   return 0;
 }
 
-extern "C" {
+/* extern "C" {
   int __declspec(dllexport) __stdcall postAttach() {
     DWORD tmp;
     CreateThread(NULL, 0, run_thread, NULL, 0, &tmp);
     return 0;
   }
-}
+} */
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call,
                       LPVOID lpReserved) {
+  switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH:
+      DWORD tmp;
+      CreateThread(NULL, 0, run_thread, NULL, 0, &tmp);
+      break;
+  }
   return TRUE;
 }

@@ -2,12 +2,12 @@
 
 Just a minimal Sekiro trainer for practicing speedruns. If you need a more complete tool, check out [Jiiks' tool](https://github.com/Jiiks/Sekiro.SpeedrunUtility).
 
-It is a DLL designed to work with [Jiiks' Universal Proxy Chain](https://github.com/Jiiks/UniversalProxyChain), which all speedrunners ought to have installed.
-To install it, copy it within the `uclib` directory under the game's folder.
+The project is comprised of a `.dll` file, an `.exe` file and an optional configuration file (see next section). To run it, just start the game and double-click the
+`.exe` file. Press `F11` to show the tool window. If the tool window is not shown, there is something wrong; please contact `johndisandonato#4484` on Discord or submit an issue here on GitHub.
 
 ## Settings
 
-Settings are stored in a file named `JDSD-SekiroPracticeTool.toml` in the same directory as `Sekiro.exe`.
+Settings are stored in a file named `jdsd_sekiro_practice_tool.toml` in the same directory as the tool.
 The file, if not present, is automatically filled with default values. Any errors coming from wrong syntax or
 undefined fields may be fixed by simply removing the file.
 
@@ -27,10 +27,6 @@ undefined fields may be fixed by simply removing the file.
   enabled = "true"      # set to "false" (quotation marks included) to disable the tool
   debug = "false"       # unimplemented, no effect yet
 ```
-
-### Violating the speedrunning community's rules
-
-It is likely that the mod is not allowed in speedruns. To disable it, it is enough to set `enabled = "false"` under `settings`. The mod will start, read the setting, and then immediately exit without affecting the game.
 
 ## Building
 

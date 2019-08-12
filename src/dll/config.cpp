@@ -13,12 +13,15 @@ std::vector<std::string> allowed_settings {
 };
 
 std::string get_config_file_name () {
-  char szExeFileName[MAX_PATH]; 
-  GetModuleFileNameA(NULL, szExeFileName, MAX_PATH);
-  std::string wf(szExeFileName);
+  HMODULE hModule;
+  GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, "get_config_file_name", &hModule);
+  char szFileName[MAX_PATH]; 
+  GetModuleFileNameA(hModule, szFileName, MAX_PATH);
+  std::string wf(szFileName);
+  std::cout << wf << std::endl;
   uint64_t lastslash = wf.find_last_of('\\');
   std::string dirname(wf.begin(), wf.begin() + lastslash + 1);
-  return dirname + std::string("JDSD-SekiroPracticeTool.toml");
+  return dirname + std::string("jdsd_sekiro_practice_tool.toml");
 }
 
 Config& Config::Instance () {
