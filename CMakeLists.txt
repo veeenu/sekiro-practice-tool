@@ -16,6 +16,7 @@ add_library(jdsd_sekiro_practice_tool MODULE ${jdsd_sekiro_practice_tool_SRC})
 
 target_link_libraries(jdsd_sekiro_practice_tool libMinHook-x64-v141-mt.lib)
 target_link_libraries(jdsd_sekiro_practice_tool shlwapi.lib)
+target_compile_definitions(jdsd_sekiro_practice_tool PUBLIC BUILD_CONFIG="${CMAKE_BUILD_TYPE}")
 set_target_properties(jdsd_sekiro_practice_tool PROPERTIES PREFIX "")
 
 project(jdsd_sekiro_practice_tool_injector C CXX)

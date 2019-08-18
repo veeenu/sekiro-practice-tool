@@ -13,21 +13,23 @@
 #include "ui.h"
 #include "config.h"
 
+#ifndef BUILD_CONFIG
+#define BUILD_CONFIG "RelWithDebInfo"
+#endif
+
+constexpr int c_strcmp( char const* lhs, char const* rhs ) {
+    return (('\0' == lhs[0]) && ('\0' == rhs[0])) ? 0
+        :  (lhs[0] != rhs[0]) ? (lhs[0] - rhs[0])
+        : c_strcmp( lhs+1, rhs+1 );
+}
+
 typedef HRESULT(__fastcall *IDXGISwapChainPresent)(IDXGISwapChain *pSwapChain,
                                                    UINT SyncInterval,
                                                    UINT Flags);
-IDXGISwapChainPresent fnIDXGISwapChainPresent;
+IDXGISwapChainPresent presentTrampoline;
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg,
                                               WPARAM wParam, LPARAM lParam);
-
-void MakeConsole() {
-  AllocConsole();
-  SetConsoleTitle(L"Sekiro Practice Tool DLL by johndisandonato");
-  freopen("CONOUT$", "w", stdout);
-  freopen("CONOUT$", "w", stderr);
-  freopen("CONIN$", "r", stdin);
-}
 
 HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain *pSwapChain,
                                      ID3D11Device **ppDevice,
@@ -63,12 +65,12 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   return CallWindowProc(OriginalWndProcHandler, hWnd, uMsg, wParam, lParam);
 }
 
-HRESULT __fastcall Present(IDXGISwapChain *pChain, UINT SyncInterval,
+HRESULT __fastcall PresentImpl(IDXGISwapChain *pChain, UINT SyncInterval,
                            UINT Flags) {
   if (!initialized) {
     std::cout << "Initializing DirectX" << std::endl;
     if (FAILED(GetDeviceAndCtxFromSwapchain(pChain, &pDevice, &pContext)))
-      return fnIDXGISwapChainPresent(pChain, SyncInterval, Flags);
+      return presentTrampoline(pChain, SyncInterval, Flags);
 
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -100,23 +102,24 @@ HRESULT __fastcall Present(IDXGISwapChain *pChain, UINT SyncInterval,
   ImGui_ImplDX11_NewFrame();
 
   ImGui::NewFrame();
-
-  // bool bShow = true;
-  // ImGui::ShowDemoWindow(&bShow);
   UI::Instance().Render();
-
   ImGui::EndFrame();
-
   ImGui::Render();
 
   pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-  return fnIDXGISwapChainPresent(pChain, SyncInterval, Flags);
+  return presentTrampoline(pChain, SyncInterval, Flags);
 }
 
 DWORD WINAPI run_thread(LPVOID param) {
-  MakeConsole();
+  if constexpr(c_strcmp(BUILD_CONFIG, "RelWithDebInfo") == 0) {
+    AllocConsole();
+    SetConsoleTitle(L"Sekiro Practice Tool DLL by johndisandonato");
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    freopen("CONIN$", "r", stdin);
+  }
 
   auto cfg = Config::Instance();
   auto s_true = std::string("true");
@@ -125,32 +128,20 @@ DWORD WINAPI run_thread(LPVOID param) {
     return 0;
   }
 
-  if (cfg.setting("debug") == s_true) {
-    // unimplemented
-  }
-
   std::cout << "Hooking functions..." << std::endl;
 
   DWORD_PTR hDxgi = (DWORD_PTR)GetModuleHandle(L"dxgi.dll");
 
-  LPVOID fnInitAddr = reinterpret_cast<LPVOID>(
+  LPVOID presentOriginal = reinterpret_cast<LPVOID>(
       (IDXGISwapChainPresent)((DWORD_PTR)hDxgi + 0x5070));
 
   MH_Initialize();
-  MH_CreateHook(fnInitAddr, &Present,
-                reinterpret_cast<LPVOID *>(&fnIDXGISwapChainPresent));
-  MH_EnableHook(fnInitAddr);
+  MH_CreateHook(presentOriginal, &PresentImpl,
+                reinterpret_cast<LPVOID *>(&presentTrampoline));
+  MH_EnableHook(presentOriginal);
 
   return 0;
 }
-
-/* extern "C" {
-  int __declspec(dllexport) __stdcall postAttach() {
-    DWORD tmp;
-    CreateThread(NULL, 0, run_thread, NULL, 0, &tmp);
-    return 0;
-  }
-} */
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call,
                       LPVOID lpReserved) {
