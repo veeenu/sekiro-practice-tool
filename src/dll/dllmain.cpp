@@ -112,6 +112,43 @@ HRESULT __fastcall PresentImpl(IDXGISwapChain *pChain, UINT SyncInterval,
   return presentTrampoline(pChain, SyncInterval, Flags);
 }
 
+LPVOID swapchain_present_vtable_lookup() {
+  // Credits: https://www.unknowncheats.me/forum/d3d-tutorials-and-source/88369-universal-d3d11-hook.html
+  D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+  ID3D11Device *pDevice = nullptr;
+  ID3D11DeviceContext *pContext = nullptr;
+  IDXGISwapChain* pSwapChain = nullptr;
+
+  DXGI_SWAP_CHAIN_DESC swapChainDesc;
+  ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+  swapChainDesc.BufferCount = 1;
+  swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+  swapChainDesc.OutputWindow = GetForegroundWindow();
+  swapChainDesc.SampleDesc.Count = 1;
+  swapChainDesc.Windowed = TRUE;
+  swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+  swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+  swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+  if (FAILED(D3D11CreateDeviceAndSwapChain(
+      NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, &featureLevel, 1,
+      D3D11_SDK_VERSION, &swapChainDesc, &pSwapChain, &pDevice, NULL, &pContext))) {
+    std::cout << "D3D11CreateDeviceAndSwapChain failed" << std::endl;
+    return nullptr;
+  }
+
+  DWORD_PTR* pSwapChainVtable;
+  pSwapChainVtable = (DWORD_PTR*)pSwapChain;
+  pSwapChainVtable = (DWORD_PTR*)pSwapChainVtable[0];
+  LPVOID ret = reinterpret_cast<LPVOID>(pSwapChainVtable[8]);
+
+  pDevice->Release();
+  pContext->Release();
+  pSwapChain->Release();
+
+  return ret;
+}
+
 DWORD WINAPI run_thread(LPVOID param) {
   if constexpr(c_strcmp(BUILD_CONFIG, "RelWithDebInfo") == 0) {
     AllocConsole();
@@ -132,8 +169,7 @@ DWORD WINAPI run_thread(LPVOID param) {
 
   DWORD_PTR hDxgi = (DWORD_PTR)GetModuleHandle(L"dxgi.dll");
 
-  LPVOID presentOriginal = reinterpret_cast<LPVOID>(
-      (IDXGISwapChainPresent)((DWORD_PTR)hDxgi + 0x5070));
+  LPVOID presentOriginal = swapchain_present_vtable_lookup();
 
   MH_Initialize();
   MH_CreateHook(presentOriginal, &PresentImpl,

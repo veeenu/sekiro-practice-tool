@@ -54,9 +54,9 @@ class MemoryState {
     PointerChain<float> x, y, z;
     PointerChain<uint8_t> Quitout;
 
-    float stored_x;
-    float stored_y;
-    float stored_z;
+    float stored_x = 0.0f;
+    float stored_y = 0.0f;
+    float stored_z = 0.0f;
 
   public:
     MemoryState ();

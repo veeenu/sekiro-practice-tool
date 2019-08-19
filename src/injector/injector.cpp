@@ -49,25 +49,26 @@ DWORD find_process(const std::string& name) {
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-  char fullDLLPath[_MAX_PATH];
-  GetFullPathNameA("jdsd_sekiro_practice_tool.dll", _MAX_PATH, fullDLLPath, NULL);
+  char full_dll_path[_MAX_PATH];
+  GetFullPathNameA("jdsd_sekiro_practice_tool.dll", _MAX_PATH, full_dll_path, NULL);
 
   DWORD pid = find_process("sekiro.exe");
-  HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+  HANDLE h_process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 
-  void* pLibRemote = VirtualAllocEx(hProcess, NULL, _MAX_PATH, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+  void* proc_dll_path = VirtualAllocEx(h_process, NULL, _MAX_PATH, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-  WriteProcessMemory(hProcess, pLibRemote, fullDLLPath, _MAX_PATH, NULL);
+  WriteProcessMemory(h_process, proc_dll_path, full_dll_path, _MAX_PATH, NULL);
 
-  HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0,    
+  HANDLE h_thread = CreateRemoteThread(
+    h_process, NULL, 0,    
     (LPTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle(__TEXT("Kernel32")), "LoadLibraryA"), 
-    pLibRemote, 0, NULL);
+    proc_dll_path, 0, NULL);
 
-  WaitForSingleObject(hThread, INFINITE);
+  WaitForSingleObject(h_thread, INFINITE);
 
   DWORD exit_code;
-  GetExitCodeThread(hThread, &exit_code);  
-  CloseHandle(hThread);
-  VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE); 
-  CloseHandle(hProcess);
+  GetExitCodeThread(h_thread, &exit_code);  
+  CloseHandle(h_thread);
+  VirtualFreeEx(h_process, proc_dll_path, 0, MEM_RELEASE); 
+  CloseHandle(h_process);
 }

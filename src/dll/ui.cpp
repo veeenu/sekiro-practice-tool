@@ -87,25 +87,34 @@ void UI::Render() {
     }
   }
 
+  constexpr auto window_flags =
+      ImGuiWindowFlags_NoDecoration
+    | ImGuiWindowFlags_NoCollapse
+    | ImGuiWindowFlags_NoResize
+    | ImGuiWindowFlags_NoMove
+    | ImGuiWindowFlags_NoScrollbar
+    ;
+
   if (show_window) {
-    if (ImGui::Begin("Practice tool")) {
+    ImGui::SetNextWindowBgAlpha(0.3f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0);
+    if (ImGui::Begin("Practice tool", nullptr, window_flags)) {
       ImGui::SetWindowPos(ImVec2(25., 25.));
-      ImGui::SetWindowSize(ImVec2(400., 300.));
       ImGui::Checkbox(tfm::format("Collision Meshes (%s)", cfg.repr("collision")).c_str(), &collision);
       ImGui::Checkbox(tfm::format("Stealth (%s)", cfg.repr("stealth")).c_str(), &stealth);
       ImGui::Checkbox(tfm::format("AI Freeze (%s)", cfg.repr("ai")).c_str(), &ai);
       ImGui::Checkbox(tfm::format("No Damage (%s)", cfg.repr("no_damage")).c_str(), &no_damage);
       ImGui::Checkbox(tfm::format("Consume (%s)", cfg.repr("consume")).c_str(), &consume);
-      //ImGui::Text(tfm::format("Load Position (%s)", cfg.repr("load_pos")).c_str());
-      //ImGui::Text(tfm::format("Save Position (%s)", cfg.repr("save_pos")).c_str());
       auto pos = state.get_position();
-      ImGui::Text(tfm::format("Current Position: (Load %s | Save %s)\n(% 12.5f, % 12.5f, % 12.5f)", 
-        cfg.repr("load_pos"), cfg.repr("save_pos"),
-        std::get<0>(pos), std::get<1>(pos), std::get<2>(pos)).c_str());
-      ImGui::Text(tfm::format("  Saved Position:\n(% 12.5f, % 12.5f, % 12.5f)",
-        std::get<3>(pos), std::get<4>(pos), std::get<5>(pos)).c_str());
+      ImGui::Text(tfm::format("Position [saved]: \n  x % 12.5f [% 12.5f]\n  y % 12.5f [% 12.5f]\n  z % 12.5f [% 12.5f]\n  (Load %s | Save %s)", 
+        std::get<0>(pos), std::get<3>(pos),
+        std::get<1>(pos), std::get<4>(pos),
+        std::get<2>(pos), std::get<5>(pos),
+        cfg.repr("load_pos"), cfg.repr("save_pos")
+      ).c_str());
       ImGui::Text(tfm::format("Quitout (%s)", cfg.repr("quitout")).c_str());
     }
+    ImGui::PopStyleVar();
     ImGui::End();
   }
 
