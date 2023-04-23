@@ -58,7 +58,7 @@ fn dist() -> Result<()> {
     let status = Command::new(&cargo)
         .current_dir(project_root())
         .env("CARGO_XTASK_DIST", "true")
-        .args(["build", "--release", "--package", "eldenring-practice-tool"])
+        .args(["build", "--release", "--package", "sekiro-practice-tool"])
         .status()
         .map_err(|e| format!("cargo: {}", e))?;
 
@@ -147,7 +147,7 @@ fn run() -> Result<()> {
     let cargo = env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
     let status = Command::new(cargo)
         .current_dir(project_root())
-        .args(["build", "--release", "--lib", "--package", "eldenring-practice-tool"])
+        .args(["build", "--release", "--lib", "--package", "sekiro-practice-tool"])
         .status()
         .map_err(|e| format!("cargo: {}", e))?;
 
@@ -166,7 +166,7 @@ fn run() -> Result<()> {
         .join("libjdsd_er_practice_tool.dll")
         .canonicalize()?;
 
-    let process = OwnedProcess::find_first_by_name("eldenring.exe")
+    let process = OwnedProcess::find_first_by_name("sekiro.exe")
         .ok_or_else(|| "Could not find process".to_string())?;
     let syringe = Syringe::for_process(process);
     syringe.inject(dll_path)?;

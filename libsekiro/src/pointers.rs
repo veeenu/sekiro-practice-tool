@@ -31,7 +31,7 @@ impl Pointers {
     pub fn new() -> Self {
         let base_module_address =
             unsafe { GetModuleHandleA(PCSTR(null_mut())).unwrap() }.0 as usize;
-        let base_addresses = BaseAddresses::from(*crate::version::VERSION)
+        let _base_addresses = BaseAddresses::from(*crate::version::VERSION)
             .with_module_base_addr(base_module_address);
 
         let pos_base = 0x143B67DF0;

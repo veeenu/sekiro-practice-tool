@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::env;
+use std::ffi::c_void;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -43,7 +44,7 @@ impl<'a> Aob<'a> {
     }
 
     pub fn find(&self, bytes: &[u8]) -> Option<(&'a str, usize)> {
-        if let Some(base) = self.patterns.iter().find_map(|aob| naive_search(&bytes, &aob)) {
+        if let Some(base) = self.patterns.iter().find_map(|aob| naive_search(bytes, aob)) {
             if self.deref {
                 let index_range = base + self.offset..base + self.offset + 4;
                 let address = u32::from_le_bytes(bytes[index_range].try_into().unwrap());
@@ -184,11 +185,12 @@ fn find_aobs(bytes: Vec<u8>) -> Vec<(&'static str, usize)> {
 }
 
 fn get_file_version(file: &Path) -> Version {
-    let mut file_path = file.to_string_lossy().to_string();
-    file_path.push(0 as char);
-    let file_path = widestring::U16CString::from_str(file_path).unwrap();
+    let file_path = file.canonicalize().unwrap().to_string_lossy().to_string();
+    let file_path = U16CString::from_str(file_path).unwrap();
+
     let mut version_info_size =
         unsafe { GetFileVersionInfoSizeW(PCWSTR(file_path.as_ptr()), None) };
+
     let mut version_info_buf = vec![0u8; version_info_size as usize];
     unsafe {
         GetFileVersionInfoW(
@@ -198,13 +200,14 @@ fn get_file_version(file: &Path) -> Version {
             version_info_buf.as_mut_ptr() as _,
         )
     };
+    println!("{:?}", version_info_size);
 
     let mut version_info: *mut VS_FIXEDFILEINFO = null_mut();
     unsafe {
         VerQueryValueW(
             version_info_buf.as_ptr() as _,
-            PCWSTR(widestring::U16CString::from_str("\\\\\0").unwrap().as_ptr()),
-            &mut version_info as *mut *mut _ as _,
+            PCWSTR(U16CString::from_str("\\\\\0").unwrap().as_ptr()),
+            &mut version_info as *mut *mut _ as *mut *mut c_void,
             &mut version_info_size,
         )
     };
@@ -367,6 +370,7 @@ pub(crate) fn codegen_base_addresses() {
     let version_data = patches_paths()
         .filter(|p| p.exists())
         .filter_map(|exe| {
+            println!("{exe:?}");
             let version = get_file_version(&exe);
             if processed_versions.contains(&version) {
                 None
