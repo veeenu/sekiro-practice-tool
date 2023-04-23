@@ -27,7 +27,7 @@ use windows::Win32::System::Threading::{
 };
 
 lazy_static! {
-    static ref AOBS: Vec<Aob<'static>> = { vec![] };
+    static ref AOBS: Vec<Aob<'static>> = vec![];
 }
 
 pub struct Aob<'a> {
@@ -307,7 +307,7 @@ fn codegen_version_enum(ver: &[VersionData]) -> String {
 
     string.push_str("            (maj, min, patch) => {\n");
     string.push_str(
-        "                log::error!(\"Unrecognized version {maj}.{min:02}.{patch}\");\n",
+        "                tracing::error!(\"Unrecognized version {maj}.{min:02}.{patch}\");\n",
     );
     string.push_str("                panic!()\n");
     string.push_str("            }\n");
@@ -341,11 +341,12 @@ fn patches_paths() -> impl Iterator<Item = PathBuf> {
             Check the documentation: https://github.com/veeenu/sekiro-practice-tool/README.md#building
         "#))),
     );
+    println!("{base_path:?}");
     base_path
         .read_dir()
         .expect("Couldn't scan patches directory")
         .map(Result::unwrap)
-        .map(|dir| dir.path().join("Game").join("eldenring.exe"))
+        .map(|dir| dir.path().join("sekiro.exe"))
 }
 
 fn codegen_base_addresses_path() -> PathBuf {
@@ -354,7 +355,6 @@ fn codegen_base_addresses_path() -> PathBuf {
         .nth(1)
         .unwrap()
         .to_path_buf()
-        .join("lib")
         .join("libsekiro")
         .join("src")
         .join("codegen")

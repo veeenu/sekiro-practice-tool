@@ -18,7 +18,9 @@ lazy_static! {
 
 impl Version {
     pub fn tuple(&self) -> (u8, u8, u8) {
-        match self {}
+        match self {
+            Version::V1_06_0 => (1, 6, 0)
+        }
     }
 }
 
