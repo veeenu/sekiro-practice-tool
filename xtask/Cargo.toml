@@ -6,3 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+widestring = "0.5.1"
+zip = "0.5.13"
+regex = "1.5.4"
+serde_json = "1.0.73"
+rayon = "1.5.1"
+dotenv = "0.15.0"
+textwrap = "0.15.0"
+heck = "0.4.0"
+dll-syringe = { git = "https://github.com/OpenByteDev/dll-syringe" }
+tracing-subscriber = "0.3.17"
+tracing = "0.1.37"
+windows = { workspace = true }
+lazy_static = "1.4.0"

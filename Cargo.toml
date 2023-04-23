@@ -1,7 +1,6 @@
 [workspace]
 members = [
   "practice-tool",
-  "practice-tool-ui",
   "libsekiro",
   "xtask"
 ]
@@ -14,3 +13,18 @@ lto = true
 hudhook = { git = "https://github.com/veeenu/hudhook" }
 imgui = "0.11.0"
 imgui-sys = "0.11.0"
+
+[workspace.dependencies.windows]
+version = "0.48.0"
+features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Storage_FileSystem",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_System_SystemServices",
+  "Win32_System_ProcessStatus",
+  "Win32_System_Threading",
+  "Win32_UI_WindowsAndMessaging",
+]
