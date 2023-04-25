@@ -318,6 +318,23 @@ fn codegen_version_enum(ver: &[VersionData]) -> String {
     string.push_str("    }\n");
     string.push_str("}\n\n");
 
+    // impl Version
+
+    string.push_str("impl Version {\n");
+    string.push_str("    pub fn tuple(&self) -> (u8, u8, u8) {\n");
+    string.push_str("        match self {\n");
+
+    for v in ver {
+        let Version(maj, min, patch) = v.version;
+        writeln!(
+            string,
+            "            Version::V{maj}_{min:02}_{patch} => ({maj}, {min}, {patch})"
+        ).unwrap();
+    }
+    string.push_str("        }\n");
+    string.push_str("    }\n");
+    string.push_str("}\n\n");
+
     // impl From<Version> for BaseAddresses
 
     string.push_str("impl From<Version> for BaseAddresses {\n");

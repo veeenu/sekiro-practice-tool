@@ -16,14 +16,6 @@ lazy_static! {
     pub static ref VERSION: Version = get_version();
 }
 
-impl Version {
-    pub fn tuple(&self) -> (u8, u8, u8) {
-        match self {
-            Version::V1_06_0 => (1, 6, 0)
-        }
-    }
-}
-
 fn get_version() -> Version {
     let file_path = {
         let mut buf = vec![0u16; MAX_PATH as usize];

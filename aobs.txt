@@ -1,0 +1,6 @@
+
+QUITOUT
+sekiro.exe+8BB758 - 48 8B 05 E9982903     - mov rax,[sekiro.exe+3B55048] { (7FF48EFFDFF0) }
+sekiro.exe+8BB75F - 48 63 C9              - movsxd  rcx,ecx
+sekiro.exe+8BB762 - 89 54 88 20           - mov [rax+rcx*4+20],edx
+sekiro.exe+8BB766 - C3                    - ret 
