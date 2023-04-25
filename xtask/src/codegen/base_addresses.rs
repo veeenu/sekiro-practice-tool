@@ -3,32 +3,30 @@ use std::env;
 use std::ffi::c_void;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::os::windows::raw::HANDLE;
+
 use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::ptr::{null, null_mut};
+
+use std::ptr::{null_mut};
 
 use heck::AsSnakeCase;
 use lazy_static::lazy_static;
 use textwrap::dedent;
 use widestring::{U16CStr, U16CString};
-use windows::core::{PCWSTR, PWSTR};
-use windows::imp::{CloseHandle, GetLastError};
-use windows::Win32::Foundation::{BOOL, DBG_CONTINUE};
+use windows::core::{PCWSTR};
+use windows::imp::{CloseHandle};
+
 use windows::Win32::Storage::FileSystem::{
     GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW, VS_FIXEDFILEINFO,
 };
 use windows::Win32::System::Diagnostics::Debug::{
-    ContinueDebugEvent, ReadProcessMemory, WaitForDebugEventEx, DEBUG_EVENT,
+    ReadProcessMemory,
 };
 use windows::Win32::System::Diagnostics::ToolHelp::{
     CreateToolhelp32Snapshot, Module32First, Module32Next, Process32FirstW, Process32NextW,
-    MODULEENTRY32, PROCESSENTRY32W, TH32CS_SNAPALL, TH32CS_SNAPMODULE, TH32CS_SNAPPROCESS,
+    MODULEENTRY32, PROCESSENTRY32W, TH32CS_SNAPMODULE, TH32CS_SNAPPROCESS,
 };
 use windows::Win32::System::Threading::{
-    CreateProcessW, OpenProcess, TerminateProcess, DEBUG_ONLY_THIS_PROCESS, DEBUG_PROCESS,
-    DETACHED_PROCESS, INFINITE, PROCESS_ALL_ACCESS, PROCESS_CREATION_FLAGS, PROCESS_INFORMATION,
-    STARTUPINFOW,
+    OpenProcess, PROCESS_ALL_ACCESS,
 };
 
 lazy_static! {
