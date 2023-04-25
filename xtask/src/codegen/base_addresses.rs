@@ -2,14 +2,16 @@ use std::collections::HashSet;
 use std::env;
 use std::ffi::c_void;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
+use std::os::windows::raw::HANDLE;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::ptr::{null, null_mut};
 
 use heck::AsSnakeCase;
 use lazy_static::lazy_static;
 use textwrap::dedent;
-use widestring::U16CString;
+use widestring::{U16CStr, U16CString};
 use windows::core::{PCWSTR, PWSTR};
 use windows::imp::{CloseHandle, GetLastError};
 use windows::Win32::Foundation::{BOOL, DBG_CONTINUE};
@@ -20,27 +22,69 @@ use windows::Win32::System::Diagnostics::Debug::{
     ContinueDebugEvent, ReadProcessMemory, WaitForDebugEventEx, DEBUG_EVENT,
 };
 use windows::Win32::System::Diagnostics::ToolHelp::{
-    CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
+    CreateToolhelp32Snapshot, Module32First, Module32Next, Process32FirstW, Process32NextW,
+    MODULEENTRY32, PROCESSENTRY32W, TH32CS_SNAPALL, TH32CS_SNAPMODULE, TH32CS_SNAPPROCESS,
 };
 use windows::Win32::System::Threading::{
-    CreateProcessW, OpenProcess, TerminateProcess, DEBUG_PROCESS, DETACHED_PROCESS,
-    PROCESS_ALL_ACCESS, PROCESS_INFORMATION, STARTUPINFOW,
+    CreateProcessW, OpenProcess, TerminateProcess, DEBUG_ONLY_THIS_PROCESS, DEBUG_PROCESS,
+    DETACHED_PROCESS, INFINITE, PROCESS_ALL_ACCESS, PROCESS_CREATION_FLAGS, PROCESS_INFORMATION,
+    STARTUPINFOW,
 };
 
 lazy_static! {
-    static ref AOBS: Vec<Aob<'static>> = vec![];
+    static ref AOBS: Vec<Aob<'static>> = vec![
+        Aob::new("Quitout", &["48 8B 05 ?? ?? ?? ?? 48 63 C9 89 54 88 20 C3"], 3, 7, true),
+        Aob::new("RenderWorld", &["80 3D ?? ?? ?? ?? 00 0F 10 00 0F 11 45 D0"], 2, 7, true),
+        Aob::new(
+            "DebugRender",
+            &["44 0F B6 3D ?? ?? ?? ?? 0F 29 74 24 20 0F 28 F1 E8"],
+            4,
+            8,
+            true
+        ),
+        Aob::new(
+            "Igt",
+            &[
+                r#"48 8B 0D ?? ?? ?? ?? 0F 28 C6 F3 0F 59 05 ?? ?? ?? ?? F3 48 0F 2C C0 01 81 ?? ?? ?? ??"#
+            ],
+            3,
+            7,
+            true
+        ),
+        Aob::new(
+            "PlayerPosition",
+            &["48 83 3D ?? ?? ?? ?? 00 0F 84 ?? ?? ?? ?? F3 41 0F 10 47 78 F3 0F 5C C7"],
+            3,
+            8,
+            true
+        ),
+        Aob::new("DebugFlags", &["80 3D ?? ?? ?? ?? 00 75 08 32 C0 48 83 C4 20"], 2, 7, true),
+    ];
 }
 
 pub struct Aob<'a> {
     name: &'a str,
     patterns: Vec<Vec<Option<u8>>>,
     offset: usize,
+    deref_offset: u32,
     deref: bool,
 }
 
 impl<'a> Aob<'a> {
-    pub fn new(name: &'a str, patterns: &[&str], offset: usize, deref: bool) -> Self {
-        Self { name, patterns: patterns.iter().copied().map(into_needle).collect(), offset, deref }
+    pub fn new(
+        name: &'a str,
+        patterns: &[&str],
+        offset: usize,
+        deref_offset: u32,
+        deref: bool,
+    ) -> Self {
+        Self {
+            name,
+            patterns: patterns.iter().copied().map(into_needle).collect(),
+            offset,
+            deref_offset,
+            deref,
+        }
     }
 
     pub fn find(&self, bytes: &[u8]) -> Option<(&'a str, usize)> {
@@ -48,6 +92,7 @@ impl<'a> Aob<'a> {
             if self.deref {
                 let index_range = base + self.offset..base + self.offset + 4;
                 let address = u32::from_le_bytes(bytes[index_range].try_into().unwrap());
+                let address = address + base as u32 + self.deref_offset;
                 Some((self.name, address as usize))
             } else {
                 Some((self.name, base + self.offset))
@@ -111,13 +156,19 @@ fn read_base_module_data(proc_name: &str, pid: u32) -> Option<(usize, Vec<u8>)> 
             unsafe {
                 ReadProcessMemory(
                     process,
-                    module_entry.modBaseAddr as *mut _,
-                    buf.as_mut_ptr() as *mut _,
+                    module_entry.modBaseAddr as *const c_void,
+                    buf.as_mut_ptr() as *mut c_void,
                     module_entry.modBaseSize as usize,
                     Some(&mut bytes_read),
                 )
             };
-            println!("Read {:x} out of {:x} bytes", bytes_read, module_entry.modBaseSize);
+            println!(
+                "Read {:x} out of {:x} bytes {:x}-{:x}",
+                bytes_read,
+                module_entry.modBaseSize,
+                module_entry.modBaseAddr as usize,
+                module_entry.modBaseSize as usize + module_entry.modBaseAddr as usize,
+            );
             unsafe { CloseHandle(process.0) };
             return Some((module_entry.modBaseAddr as usize, buf));
         }
@@ -129,55 +180,119 @@ fn read_base_module_data(proc_name: &str, pid: u32) -> Option<(usize, Vec<u8>)> 
 }
 
 fn get_base_module_bytes(exe_path: &Path) -> Option<(usize, Vec<u8>)> {
-    let mut process_info = PROCESS_INFORMATION::default();
-    let startup_info =
-        STARTUPINFOW { cb: std::mem::size_of::<STARTUPINFOW>() as _, ..Default::default() };
+    // This was a great strategy but unfortunately it's over now
 
-    let mut exe = U16CString::from_str(exe_path.to_str().unwrap()).unwrap().into_vec();
-    exe.push(0);
+    // let mut process_info = PROCESS_INFORMATION::default();
+    // let startup_info =
+    //     STARTUPINFOW { cb: std::mem::size_of::<STARTUPINFOW>() as _,
+    // ..Default::default() };
+    //
+    // let mut exe =
+    // U16CString::from_str(exe_path.to_str().unwrap()).unwrap().into_vec();
+    // exe.push(0);
+    //
+    // let mut exe_dir =
+    //     U16CString::from_str(exe_path.parent().unwrap().to_str().unwrap()).
+    // unwrap().into_vec(); exe_dir.push(0);
+    //
+    // let process = unsafe {
+    //     CreateProcessW(
+    //         PCWSTR(exe.as_ptr()),
+    //         PWSTR(null_mut()),
+    //         None,
+    //         None,
+    //         BOOL::from(false),
+    //         DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | DETACHED_PROCESS,
+    //         None,
+    //         PCWSTR(exe_dir.as_ptr()),
+    //         &startup_info,
+    //         &mut process_info,
+    //     )
+    // };
+    //
+    // if !process.as_bool() {
+    //     eprintln!("Could not create process: {:x}", unsafe { GetLastError() });
+    //     return None;
+    // }
+    //
+    // println!("Process handle={:x} pid={}", process_info.hProcess.0,
+    // process_info.dwProcessId);
+    //
+    // let mut debug_event = DEBUG_EVENT::default();
+    //
+    // loop {
+    //     if !unsafe { WaitForDebugEventEx(&mut debug_event, INFINITE).as_bool() }
+    // {         break;
+    //     }
+    //     unsafe {
+    //         ContinueDebugEvent(process_info.dwProcessId, process_info.dwThreadId,
+    // DBG_CONTINUE)     };
+    //     match debug_event.dwDebugEventCode.0 {
+    //         1 => println!("{:#?}", unsafe { debug_event.u.Exception }),
+    //         2 => println!("{:#?}", unsafe { debug_event.u.CreateThread }),
+    //         3 => println!("{:#?}", unsafe { debug_event.u.CreateProcessInfo }),
+    //         4 => println!("{:#?}", unsafe { debug_event.u.ExitThread }),
+    //         5 => println!("{:#?}", unsafe { debug_event.u.ExitProcess }),
+    //         6 => println!("{:#?}", unsafe { debug_event.u.LoadDll }),
+    //         7 => println!("{:#?}", unsafe { debug_event.u.UnloadDll }),
+    //         8 => println!("{:#?}", unsafe { debug_event.u.DebugString }),
+    //         9 => println!("{:#?}", unsafe { debug_event.u.RipInfo }),
+    //         _ => unreachable!(),
+    //     }
+    //     if debug_event.dwDebugEventCode.0 == 2 {
+    //         break;
+    //     }
+    // }
 
-    let process = unsafe {
-        CreateProcessW(
-            PCWSTR(exe.as_ptr()),
-            PWSTR(null_mut()),
-            None,
-            None,
-            BOOL::from(false),
-            DEBUG_PROCESS | DETACHED_PROCESS,
-            None,
-            PCWSTR(null()),
-            &startup_info,
-            &mut process_info,
-        )
-    };
+    // Enter asking the user to double click the hecking game
+    println!("Start \n\n{}\n\n and press enter please...", exe_path.display());
+    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
+    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
 
-    if !process.as_bool() {
-        eprintln!("Could not create process: {:x}", unsafe { GetLastError() });
-        return None;
-    }
-
-    println!("Process handle={:x} pid={}", process_info.hProcess.0, process_info.dwProcessId);
-
-    let mut debug_event = DEBUG_EVENT::default();
-
-    loop {
-        unsafe { WaitForDebugEventEx(&mut debug_event, 1000) };
-        unsafe {
-            ContinueDebugEvent(process_info.dwProcessId, process_info.dwThreadId, DBG_CONTINUE)
-        };
-        if debug_event.dwDebugEventCode.0 == 2 {
-            break;
-        }
-    }
+    let process = unsafe { get_process_by_name64("sekiro.exe").unwrap() };
 
     let ret = read_base_module_data(
         exe_path.file_name().unwrap().to_str().unwrap(),
-        process_info.dwProcessId,
+        process, // process_info.dwProcessId,
     );
 
-    unsafe { TerminateProcess(process_info.hProcess, 0) };
+    // unsafe { TerminateProcess(process_info.hProcess, 0) };
 
     ret
+}
+
+unsafe fn get_process_by_name64(name: &str) -> Result<u32, ()> {
+    let name = U16CString::from_str_truncate(name);
+
+    let snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0).unwrap();
+    let mut pe32 = PROCESSENTRY32W {
+        dwSize: std::mem::size_of::<PROCESSENTRY32W>() as u32,
+        ..Default::default()
+    };
+
+    if !Process32FirstW(snapshot, &mut pe32).as_bool() {
+        CloseHandle(snapshot.0);
+        return Err(());
+    }
+
+    let pid = loop {
+        let proc_name =
+            U16CStr::from_ptr_truncate(pe32.szExeFile.as_ptr(), pe32.szExeFile.len()).unwrap();
+
+        if proc_name == name.as_ucstr() {
+            break Ok(pe32.th32ProcessID);
+        }
+
+        if !Process32NextW(snapshot, &mut pe32).as_bool() {
+            CloseHandle(snapshot.0);
+            break Err(());
+        }
+    }
+    .unwrap();
+
+    CloseHandle(snapshot.0);
+
+    Ok(pid)
 }
 
 fn find_aobs(bytes: Vec<u8>) -> Vec<(&'static str, usize)> {
@@ -328,8 +443,9 @@ fn codegen_version_enum(ver: &[VersionData]) -> String {
         let Version(maj, min, patch) = v.version;
         writeln!(
             string,
-            "            Version::V{maj}_{min:02}_{patch} => ({maj}, {min}, {patch})"
-        ).unwrap();
+            "            Version::V{maj}_{min:02}_{patch} => ({maj}, {min}, {patch}),"
+        )
+        .unwrap();
     }
     string.push_str("        }\n");
     string.push_str("    }\n");
@@ -396,6 +512,7 @@ pub(crate) fn codegen_base_addresses() {
                 println!("\nVERSION {}: {:?}", version.to_fromsoft_string(), exe);
 
                 let (_base_addr, bytes) = get_base_module_bytes(&exe).unwrap();
+
                 let aobs = find_aobs(bytes);
                 processed_versions.insert(version);
                 Some(VersionData { version, aobs })

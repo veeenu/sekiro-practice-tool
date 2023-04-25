@@ -236,7 +236,8 @@ fn update_icon(path: PathBuf, icon: PathBuf) -> Result<()> {
         let handle = BeginUpdateResourceW(
             PCWSTR(U16CString::from_str(path.to_str().unwrap())?.as_ptr()),
             BOOL::from(false),
-        ).unwrap();
+        )
+        .unwrap();
 
         UpdateResourceW(
             handle,

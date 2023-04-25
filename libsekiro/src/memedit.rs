@@ -187,4 +187,3 @@ macro_rules! bitflag {
 }
 
 pub use {bitflag, pointer_chain};
-

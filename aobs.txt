@@ -1,6 +1,57 @@
 
-QUITOUT
+# QUITOUT
 sekiro.exe+8BB758 - 48 8B 05 E9982903     - mov rax,[sekiro.exe+3B55048] { (7FF48EFFDFF0) }
 sekiro.exe+8BB75F - 48 63 C9              - movsxd  rcx,ecx
 sekiro.exe+8BB762 - 89 54 88 20           - mov [rax+rcx*4+20],edx
 sekiro.exe+8BB766 - C3                    - ret 
+
+position here + value + 7
+
+48 8B 05 ?? ?? ?? ?? 48 63 C9 89 54 88 20 C3 
+
+# RenderWorld
+
+sekiro.exe+831BB6 - 80 3D 0BEC0C03 00     - cmp byte ptr [sekiro.exe+39007C8],00 { (16843009),0 }
+sekiro.exe+831BBD - 0F10 00               - movups xmm0,[rax]
+sekiro.exe+831BC0 - 0F11 45 D0            - movups [rbp-30],xmm0
+
+80 3D ?? ?? ?? ?? 00 0F 10 00 0F 11 45 D0
+
+  ## RenderObjects/Mobs/Effects at +1 +2 +3
+
+# DebugRender
+
+44 0F B6 3D ?? ?? ?? ?? 0F 29 74 24 20 0F 28 F1 E8
+
+  ## 0 1 2 5 6 7 8 9 
+
+# IGT
+
+sekiro.exe+7A8D07 - 48 8B 0D E2EF3903     - mov rcx,[sekiro.exe+3B47CF0] { (7FF49E7FE9C0) }
+sekiro.exe+7A8D0E - 0F28 C6               - movaps xmm0,xmm6
+sekiro.exe+7A8D11 - F3 0F59 05 53F29402   - mulss xmm0,[sekiro.exe+30F7F6C] { (1000.00) }
+sekiro.exe+7A8D19 - F3 48 0F2C C0         - cvttss2si rax,xmm0
+sekiro.exe+7A8D1E - 01 81 9C000000        - add [rcx+0000009C],eax
+
+Base: 48 8B 0D ?? ?? ?? ?? 0F 28 C6 F3 0F 59 05 ?? ?? ?? ?? F3 48 0F 2C C0 01 81 ?? ?? ?? ??
+Offset: F3 48 0F 2C C0 01 81 ?? ?? ?? ?? 
+
+# PlayerPosition
+
+sekiro.exe+78A5EF - 48 83 3D F9D73D03 00  - cmp qword ptr [sekiro.exe+3B67DF0],00 { (7FF4F73688D0),0 }
+sekiro.exe+78A5F7 - 0F84 F7000000         - je sekiro.exe+78A6F4
+sekiro.exe+78A5FD - F3 41 0F10 47 78      - movss xmm0,[r15+78]
+sekiro.exe+78A603 - F3 0F5C C7            - subss xmm0,xmm7
+
+48 83 3D ?? ?? ?? ?? 00 0F 84 ?? ?? ?? ?? F3 41 0F10 47 78 F3 0F 5C C7
+
+# PlayerNoGoodsConsume
+
+sekiro.exe+9E2DB1 - 80 3D A1511803 00     - cmp byte ptr [sekiro.exe+3B67F59],00 { (0),0 }
+sekiro.exe+9E2DB8 - 75 08                 - jne sekiro.exe+9E2DC2
+sekiro.exe+9E2DBA - 32 C0                 - xor al,al
+sekiro.exe+9E2DBC - 48 83 C4 20           - add rsp,20 { 32 }
+
+80 3D ?? ?? ?? ?? 00 75 08 32 C0 48 83 C4 20
+
+Assume fixed offset?
