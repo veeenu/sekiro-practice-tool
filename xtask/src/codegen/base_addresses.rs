@@ -50,6 +50,13 @@ lazy_static! {
             true
         ),
         Aob::new("DebugFlags", &["80 3D ?? ?? ?? ?? 00 75 08 32 C0 48 83 C4 20"], 2, 7, true),
+        Aob::new(
+            "ShowCursor",
+            &[r#"40 38 3D ?? ?? ?? ?? 0F B6 DB 0F 44 DF 84 DB 0F 94 C3 83 7D 40 FF"#],
+            3,
+            7,
+            true
+        )
     ];
 }
 
