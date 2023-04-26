@@ -48,7 +48,7 @@ impl From<(u32, u32, u32)> for Version {
             (maj, min, patch) => {
                 tracing::error!("Unrecognized version {maj}.{min:02}.{patch}");
                 panic!()
-            }
+            },
         }
     }
 }
@@ -131,4 +131,3 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     show_cursor: 0x3d8990c,
     no_logo: 0xe1b51b,
 };
-

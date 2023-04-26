@@ -3,6 +3,7 @@ members = [
   "practice-tool",
   "practice-tool-utils",
   "libsekiro",
+  "no-logo",
   "xtask"
 ]
 

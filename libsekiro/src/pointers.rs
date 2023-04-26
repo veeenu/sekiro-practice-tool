@@ -64,6 +64,7 @@ impl Pointers {
             player_position,
             debug_flags,
             show_cursor,
+            ..
         } = base_addresses;
 
         Pointers {
