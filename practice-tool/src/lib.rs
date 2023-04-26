@@ -34,7 +34,6 @@ use pkg_version::*;
 use practice_tool_utils::widgets::{scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH};
 use tracing_subscriber::prelude::*;
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_RSHIFT};
-use windows::Win32::UI::WindowsAndMessaging::ShowCursor;
 
 const MAJOR: usize = pkg_version_major!();
 const MINOR: usize = pkg_version_minor!();
@@ -198,7 +197,7 @@ impl PracticeTool {
                 if ui.button_with_size("Close", [BUTTON_WIDTH * scaling_factor(ui), BUTTON_HEIGHT])
                 {
                     self.ui_state = UiState::Closed;
-                    // self.pointers.cursor_show.set(false);
+                    // self.pointers.show_cursor.set(false);
                     if option_env!("CARGO_XTASK_DIST").is_none() {
                         hudhook::lifecycle::eject();
                     }
@@ -244,7 +243,7 @@ impl PracticeTool {
                     .movable(false)
                     .title_bar(false)
                     .build(|| {
-                        // self.pointers.cursor_show.set(true);
+                        // self.pointers.show_cursor.set(true);
                         ui.text(formatcp!("Sekiro Practice Tool v{}.{}.{}", MAJOR, MINOR, PATCH));
                         ui.separator();
                         ui.text(format!(
@@ -265,7 +264,7 @@ impl PracticeTool {
                         ui.separator();
                         if ui.button("Close") {
                             ui.close_current_popup();
-                            // self.pointers.cursor_show.set(false);
+                            // self.pointers.show_cursor.set(false);
                         }
                         ui.same_line();
                         if ui.button("Submit issue") {
@@ -276,14 +275,12 @@ impl PracticeTool {
 
                 ui.text(&self.version_label);
 
-                if let Some([x, y, z, angle]) = self.pointers.position.read() {
+                if let Some([x, y, z, _]) = self.pointers.position.read() {
                     ui.text_colored([0.7048, 0.1228, 0.1734, 1.], format!("{x:.2}"));
                     ui.same_line();
                     ui.text_colored([0.1161, 0.5327, 0.3512, 1.], format!("{y:.2}"));
                     ui.same_line();
                     ui.text_colored([0.1445, 0.2852, 0.5703, 1.], format!("{z:.2}"));
-                    ui.same_line();
-                    ui.text(format!("{angle:.2}"));
                 }
 
                 if let Some(igt) = self.pointers.igt.read() {
@@ -392,22 +389,16 @@ impl ImguiRenderLoop for PracticeTool {
                 (UiState::Closed, _) => UiState::MenuOpen,
             };
 
-            match &self.ui_state {
-                UiState::MenuOpen => {},
-                UiState::Closed => unsafe {
-                    ShowCursor(false);
-                }, // self.pointers.cursor_show.
-                // set(false),
-                UiState::Hidden => unsafe {
-                    ShowCursor(true);
-                }, /* self.pointers.cursor_show.
-                    * set(false), */
-            }
+            // match &self.ui_state {
+            //     UiState::MenuOpen => {},
+            //     UiState::Closed => self.pointers.show_cursor.set(false),
+            //     UiState::Hidden => self.pointers.show_cursor.set(false),
+            // }
         }
 
         match &self.ui_state {
             UiState::MenuOpen => {
-                // self.pointers.cursor_show.set(true);
+                // self.pointers.show_cursor.set(true);
                 self.render_visible(ui, flags);
             },
             UiState::Closed => {

@@ -66,3 +66,7 @@ sekiro.exe+E01923 - 0F94 C3               - sete bl
 sekiro.exe+E01926 - 83 7D 40 FF           - cmp dword ptr [rbp+40],-01 { 255 }
 
 40 38 3D ?? ?? ?? ?? 0F B6 DB 0F 44 DF 84 DB 0F 94 C3 83 7D 40 FF
+
+# No logo
+
+74 30 48 8D 54 24 30 48 8B CD E8

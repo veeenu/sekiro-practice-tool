@@ -60,12 +60,12 @@ impl Widget for SavePosition {
             self.save_position();
         }
         ui.text(format!(
-            "{:7.1} {:7.1} {:7.1} {:7.1}",
-            read_pos[0], read_pos[1], read_pos[2], read_pos[3]
+            "{:7.1} {:7.1} {:7.1}",
+            read_pos[0], read_pos[1], read_pos[2],
         ));
         ui.text(format!(
-            "{:7.1} {:7.1} {:7.1} {:7.1}",
-            saved_pos[0], saved_pos[1], saved_pos[2], saved_pos[3],
+            "{:7.1} {:7.1} {:7.1}",
+            saved_pos[0], saved_pos[1], saved_pos[2],
         ));
     }
 

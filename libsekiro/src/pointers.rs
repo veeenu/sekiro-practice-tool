@@ -10,6 +10,7 @@ use crate::{bitflag, pointer_chain};
 pub struct Pointers {
     pub position: PointerChain<[f32; 4]>,
     pub quitout: PointerChain<u8>,
+    pub show_cursor: Bitflag<u8>,
     pub igt: PointerChain<u32>,
 
     pub render_world: Bitflag<u8>,
@@ -62,11 +63,13 @@ impl Pointers {
             igt,
             player_position,
             debug_flags,
+            show_cursor,
         } = base_addresses;
 
         Pointers {
             position: pointer_chain!(player_position, 0x48, 0x28, 0x80),
             quitout: pointer_chain!(quitout, 0x23C),
+            show_cursor: bitflag!(0b1; show_cursor),
             igt: pointer_chain!(igt, 0x9C),
 
             render_world: bitflag!(0b1; render_world),
