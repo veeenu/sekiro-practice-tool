@@ -107,7 +107,7 @@ impl PracticeTool {
 
         let log_level = config.settings.log_level.inner();
 
-        if log_level < LevelFilter::DEBUG || !config.show_console() {
+        if log_level < LevelFilter::DEBUG || !config.settings.show_console {
             hudhook::utils::free_console();
         }
 
@@ -242,7 +242,7 @@ impl PracticeTool {
                     .movable(false)
                     .title_bar(false)
                     .build(|| {
-                        self.pointers.cursor_show.set(true);
+                        // self.pointers.cursor_show.set(true);
                         ui.text(formatcp!(
                             "Elden Ring Practice Tool v{}.{}.{}",
                             MAJOR,
@@ -268,7 +268,7 @@ impl PracticeTool {
                         ui.separator();
                         if ui.button("Close") {
                             ui.close_current_popup();
-                            self.pointers.cursor_show.set(false);
+                            // self.pointers.cursor_show.set(false);
                         }
                         ui.same_line();
                         if ui.button("Submit issue") {
@@ -279,19 +279,14 @@ impl PracticeTool {
 
                 ui.text(&self.version_label);
 
-                if let (Some([x, y, z, _a1, _a2]), Some(m)) = (
-                    self.pointers.global_position.read(),
-                    self.pointers.global_position.read_map_id(),
-                ) {
-                    let (a, b, r, s) =
-                        ((m >> 24) & 0xff, (m >> 16) & 0xff, (m >> 8) & 0xff, m & 0xff);
-                    ui.text(format!("m{a:02x}_{b:02x}_{r:02x}_{s:02x}"));
-                    ui.same_line();
+                if let Some([x, y, z, angle]) = self.pointers.position.read() {
                     ui.text_colored([0.7048, 0.1228, 0.1734, 1.], format!("{x:.2}"));
                     ui.same_line();
                     ui.text_colored([0.1161, 0.5327, 0.3512, 1.], format!("{y:.2}"));
                     ui.same_line();
                     ui.text_colored([0.1445, 0.2852, 0.5703, 1.], format!("{z:.2}"));
+                    ui.same_line();
+                    ui.text(format!("{angle:.2}"));
                 }
 
                 if let Some(igt) = self.pointers.igt.read() {
@@ -402,14 +397,14 @@ impl ImguiRenderLoop for PracticeTool {
 
             match &self.ui_state {
                 UiState::MenuOpen => {},
-                UiState::Closed => self.pointers.cursor_show.set(false),
-                UiState::Hidden => self.pointers.cursor_show.set(false),
+                UiState::Closed => {}, // self.pointers.cursor_show.set(false),
+                UiState::Hidden => {}, // self.pointers.cursor_show.set(false),
             }
         }
 
         match &self.ui_state {
             UiState::MenuOpen => {
-                self.pointers.cursor_show.set(true);
+                // self.pointers.cursor_show.set(true);
                 self.render_visible(ui, flags);
             },
             UiState::Closed => {

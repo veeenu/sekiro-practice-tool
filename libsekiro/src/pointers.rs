@@ -8,8 +8,8 @@ use crate::memedit::{Bitflag, PointerChain};
 use crate::{bitflag, pointer_chain};
 
 pub struct Pointers {
-    pub position: PointerChain<[f32; 3]>,
-    pub quitout: Bitflag<u8>,
+    pub position: PointerChain<[f32; 4]>,
+    pub quitout: PointerChain<u8>,
     pub igt: PointerChain<u32>,
 
     pub render_world: Bitflag<u8>,
@@ -66,7 +66,7 @@ impl Pointers {
 
         Pointers {
             position: pointer_chain!(player_position, 0x48, 0x28, 0x80),
-            quitout: bitflag!(0b1; quitout, 0x23C),
+            quitout: pointer_chain!(quitout, 0x23C),
             igt: pointer_chain!(igt, 0x9C),
 
             render_world: bitflag!(0b1; render_world),

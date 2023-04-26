@@ -83,7 +83,7 @@ impl TryFrom<String> for LevelFilterSerde {
 
 impl Config {
     pub(crate) fn parse(cfg: &str) -> Result<Self, String> {
-        let de = &mut toml::de::Deserializer::new(cfg);
+        let de = toml::de::Deserializer::new(cfg);
         serde_path_to_error::deserialize(de)
             .map_err(|e| format!("TOML config error at {}: {}", e.path(), e.inner()))
     }

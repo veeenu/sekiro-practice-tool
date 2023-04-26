@@ -127,9 +127,9 @@ impl<T> PointerChain<T> {
 #[derive(Clone)]
 pub struct Bitflag<T>(PointerChain<T>, T);
 
-impl<T: Display + Debug> Debug for PointerChain<T> {
+impl<T: Debug> Debug for PointerChain<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "PointerChain({} @ {:p}", self.proc.0, self.base)?;
+        write!(f, "PointerChain({:?} @ {:p}", self.proc.0, self.base)?;
         for o in &self.offsets {
             write!(f, ", {:x}", o)?;
         }

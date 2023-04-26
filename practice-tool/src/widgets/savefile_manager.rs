@@ -5,6 +5,8 @@ use std::process::Command;
 
 use hudhook::imgui::*;
 use hudhook::tracing::error;
+use practice_tool_utils::{KeyState, get_key_code};
+use practice_tool_utils::widgets::{Widget, scaling_factor, BUTTON_WIDTH, BUTTON_HEIGHT, MODAL_BACKGROUND};
 
 const SFM_TAG: &str = "##savefile-manager";
 
@@ -20,7 +22,7 @@ impl ErroredSavefileManagerInner {
 }
 
 impl Widget for ErroredSavefileManagerInner {
-    fn render(&mut self, ui: &imgui::Ui) {
+    fn render(&mut self, ui: &Ui) {
         ui.text(&self.error);
     }
 }
@@ -132,7 +134,7 @@ impl SavefileManager {
 }
 
 impl Widget for SavefileManager {
-    fn render(&mut self, ui: &imgui::Ui) {
+    fn render(&mut self, ui: &Ui) {
         let scale = scaling_factor(ui);
         let button_width = BUTTON_WIDTH * scale;
 
@@ -142,7 +144,7 @@ impl Widget for SavefileManager {
         }
 
         let style_tokens =
-            [ui.push_style_color(imgui::StyleColor::ModalWindowDimBg, super::MODAL_BACKGROUND)];
+            [ui.push_style_color(StyleColor::ModalWindowDimBg, MODAL_BACKGROUND)];
 
         if let Some(_token) = ui
             .modal_popup_config(SFM_TAG)
@@ -248,7 +250,7 @@ impl Widget for SavefileManager {
         style_tokens.into_iter().rev().for_each(|t| t.pop());
     }
 
-    fn interact(&mut self, ui: &imgui::Ui) {
+    fn interact(&mut self, ui: &Ui) {
         if self.input_edited {
             return;
         }

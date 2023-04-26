@@ -5,29 +5,29 @@ use practice_tool_utils::KeyState;
 
 #[derive(Debug)]
 pub(crate) struct SavePosition {
-    position: PointerChain<[f32; 3]>,
+    position: PointerChain<[f32; 4]>,
     hotkey: KeyState,
     modifier: KeyState,
-    saved_position: [f32; 3],
+    saved_position: [f32; 4],
 }
 
 impl SavePosition {
     pub(crate) fn new(
-        position: PointerChain<[f32; 3]>,
+        position: PointerChain<[f32; 4]>,
         hotkey: KeyState,
         modifier: KeyState,
     ) -> Self {
-        SavePosition { position, hotkey, modifier, saved_position: [0f32; 3] }
+        SavePosition { position, hotkey, modifier, saved_position: [0f32; 4] }
     }
 
     fn save_position(&mut self) {
-        if let Some([x, y, z, _, _]) = self.position.read() {
-            self.saved_position = [x, y, z];
+        if let Some([x, y, z, angle]) = self.position.read() {
+            self.saved_position = [x, y, z, angle];
         }
     }
 
     fn load_position(&mut self) {
-        if let Some([gx, gy, gz]) = self.position.read() {
+        if self.position.read().is_some() {
             self.position.write(self.saved_position);
         }
     }
@@ -37,9 +37,7 @@ impl Widget for SavePosition {
     fn render(&mut self, ui: &imgui::Ui) {
         let saved_pos = self.saved_position;
 
-        let (read_pos, valid) = if let (Some([x, y, z, _, _]), Some(angle)) =
-            (self.position.read(), self.chunk_position.angle1.read())
-        {
+        let (read_pos, valid) = if let Some([x, y, z, angle]) = self.position.read() {
             ([x, y, z, angle], true)
         } else {
             ([0f32; 4], false)

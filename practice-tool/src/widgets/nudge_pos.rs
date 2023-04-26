@@ -1,12 +1,11 @@
 use hudhook::imgui;
 use libsekiro::prelude::*;
 use practice_tool_utils::widgets::{scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH};
-
-use crate::util::KeyState;
+use practice_tool_utils::KeyState;
 
 #[derive(Debug)]
 pub(crate) struct NudgePosition {
-    position: PointerChain<[f32; 3]>,
+    position: PointerChain<[f32; 4]>,
     nudge: f32,
     nudge_up: Option<KeyState>,
     nudge_down: Option<KeyState>,
@@ -16,7 +15,7 @@ pub(crate) struct NudgePosition {
 
 impl NudgePosition {
     pub(crate) fn new(
-        position: PointerChain<[f32; 3]>,
+        position: PointerChain<[f32; 4]>,
         nudge: f32,
         nudge_up: Option<KeyState>,
         nudge_down: Option<KeyState>,
@@ -35,14 +34,14 @@ impl NudgePosition {
     }
 
     fn do_nudge_up(&mut self) {
-        if let Some([x, y, z]) = self.position.read() {
-            self.position.write([x, y + self.nudge, z]);
+        if let Some([x, y, z, angle]) = self.position.read() {
+            self.position.write([x, y + self.nudge, z, angle]);
         }
     }
 
     fn do_nudge_down(&mut self) {
-        if let Some([x, y, z]) = self.position.read() {
-            self.position.write([x, y - self.nudge, z]);
+        if let Some([x, y, z, angle]) = self.position.read() {
+            self.position.write([x, y - self.nudge, z, angle]);
         }
     }
 }
