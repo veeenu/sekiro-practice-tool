@@ -1,7 +1,7 @@
 # Sekiro Practice Tool
 
 [![GitHub all releases](https://img.shields.io/github/downloads/veeenu/sekiro-practice-tool/total)](https://github.com/veeenu/sekiro-practice-tool/releases/latest)
-[![GitHub](https://img.shields.io/github/license/veeenu/sekiro-practice-tool)](https://github.com/veeenu/sekiro-practice-tool/blob/main/LICENSE) 
+[![GitHub](https://img.shields.io/github/license/veeenu/sekiro-practice-tool)](https://github.com/veeenu/sekiro-practice-tool/blob/master/LICENSE) 
 [![Discord](https://img.shields.io/discord/267623298647457802)](https://discord.gg/CVHbN7eF)
 [![Twitch](https://img.shields.io/twitch/status/johndisandonato?style=social)](https://twitch.tv/johndisandonato)
 
