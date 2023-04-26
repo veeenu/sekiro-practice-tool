@@ -57,8 +57,15 @@ lazy_static! {
             7,
             true
         ),
-        Aob::new("NoLogo", &["74 30 48 8D 54 24 30 48 8B CD E8"], 0, 0, false)
-
+        Aob::new(
+            "NoLogo",
+            &[
+                r#"74 30 48 8D 54 24 30 48 8B CD E8 ?? ?? ?? ?? 90 BB 01 00 00 00 89 5C 24 20 44 0F B6 4E 04"#
+            ],
+            0,
+            0,
+            false
+        )
     ];
 }
 

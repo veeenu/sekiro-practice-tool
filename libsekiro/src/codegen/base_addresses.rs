@@ -10,6 +10,7 @@ pub struct BaseAddresses {
     pub player_position: usize,
     pub debug_flags: usize,
     pub show_cursor: usize,
+    pub no_logo: usize,
 }
 
 impl BaseAddresses {
@@ -22,6 +23,7 @@ impl BaseAddresses {
             player_position: self.player_position + base,
             debug_flags: self.debug_flags + base,
             show_cursor: self.show_cursor + base,
+            no_logo: self.no_logo + base,
         }
     }
 }
@@ -83,6 +85,7 @@ pub const BASE_ADDRESSES_1_02_0: BaseAddresses = BaseAddresses {
     player_position: 0x3b67df0,
     debug_flags: 0x3b67f59,
     show_cursor: 0x3b77048,
+    no_logo: 0xdebf2b,
 };
 
 pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
@@ -93,6 +96,7 @@ pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
     player_position: 0x3b68e30,
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
+    no_logo: 0xdec85b,
 };
 
 pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
@@ -103,6 +107,7 @@ pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
     player_position: 0x3b68e30,
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
+    no_logo: 0xdec85b,
 };
 
 pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
@@ -113,6 +118,7 @@ pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
     player_position: 0x3d7a140,
     debug_flags: 0x3d7a2c9,
     show_cursor: 0x3d8986c,
+    no_logo: 0xe1b1ab,
 };
 
 pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
@@ -123,5 +129,6 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     player_position: 0x3d7a1e0,
     debug_flags: 0x3d7a369,
     show_cursor: 0x3d8990c,
+    no_logo: 0xe1b51b,
 };
 

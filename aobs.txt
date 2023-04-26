@@ -69,4 +69,14 @@ sekiro.exe+E01926 - 83 7D 40 FF           - cmp dword ptr [rbp+40],-01 { 255 }
 
 # No logo
 
-74 30 48 8D 54 24 30 48 8B CD E8
+sekiro.exe+DEBF2B - 74 30                 - je sekiro.exe+DEBF5D
+sekiro.exe+DEBF2D - 48 8D 54 24 30        - lea rdx,[rsp+30]
+sekiro.exe+DEBF32 - 48 8B CD              - mov rcx,rbp
+sekiro.exe+DEBF35 - E8 462BE6FF           - call sekiro.exe+C4EA80
+sekiro.exe+DEBF3A - 90                    - nop 
+sekiro.exe+DEBF3B - BB 01000000           - mov ebx,00000001 { 1 }
+sekiro.exe+DEBF40 - 89 5C 24 20           - mov [rsp+20],ebx
+sekiro.exe+DEBF44 - 44 0FB6 4E 04         - movzx r9d,byte ptr [rsi+04]
+
+
+74 30 48 8D 54 24 30 48 8B CD E8 ?? ?? ?? ?? 90 BB 01 00 00 00 89 5C 24 20 44 0F B6 4E 04
