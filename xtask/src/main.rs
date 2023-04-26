@@ -79,7 +79,7 @@ fn dist() -> Result<()> {
 
     update_icon(
         project_root().join("target/release/jdsd_sekiro_practice_tool.exe"),
-        project_root().join("practice-tool/src/icon.ico"),
+        project_root().join("practice-tool/data/sidekiro.ico"),
     )
     .map_err(|e| format!("Update icon: {}", e))?;
 
@@ -137,7 +137,7 @@ fn dist() -> Result<()> {
         "jdsd_sekiro_practice_tool.dll",
     )?;
     dist.add(project_root().join("target/release/dinput8.dll"), "dinput8.dll")?;
-    dist.add(project_root().join("lib/data/RELEASE-README.txt"), "README.txt")?;
+    dist.add(project_root().join("practice-tool/data/RELEASE-README.txt"), "README.txt")?;
     dist.add(
         project_root().join("jdsd_sekiro_practice_tool.toml"),
         "jdsd_sekiro_practice_tool.toml",
