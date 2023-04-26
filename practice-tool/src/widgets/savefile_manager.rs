@@ -5,8 +5,10 @@ use std::process::Command;
 
 use hudhook::imgui::*;
 use hudhook::tracing::error;
-use practice_tool_utils::{KeyState, get_key_code};
-use practice_tool_utils::widgets::{Widget, scaling_factor, BUTTON_WIDTH, BUTTON_HEIGHT, MODAL_BACKGROUND};
+use practice_tool_utils::widgets::{
+    scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH, MODAL_BACKGROUND,
+};
+use practice_tool_utils::{get_key_code, KeyState};
 
 const SFM_TAG: &str = "##savefile-manager";
 
@@ -143,8 +145,7 @@ impl Widget for SavefileManager {
             self.dir_stack.refresh();
         }
 
-        let style_tokens =
-            [ui.push_style_color(StyleColor::ModalWindowDimBg, MODAL_BACKGROUND)];
+        let style_tokens = [ui.push_style_color(StyleColor::ModalWindowDimBg, MODAL_BACKGROUND)];
 
         if let Some(_token) = ui
             .modal_popup_config(SFM_TAG)

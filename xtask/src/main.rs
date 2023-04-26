@@ -78,7 +78,7 @@ fn dist() -> Result<()> {
     }
 
     update_icon(
-        project_root().join("target/release/jdsd_er_practice_tool.exe"),
+        project_root().join("target/release/jdsd_sekiro_practice_tool.exe"),
         project_root().join("practice-tool/src/icon.ico"),
     )
     .map_err(|e| format!("Update icon: {}", e))?;
@@ -126,19 +126,22 @@ fn dist() -> Result<()> {
         }
     }
 
-    let mut dist = DistZipFile::new("jdsd_er_practice_tool.zip")?;
+    let mut dist = DistZipFile::new("jdsd_sekiro_practice_tool.zip")?;
 
     dist.add(
-        project_root().join("target/release/jdsd_er_practice_tool.exe"),
-        "jdsd_er_practice_tool.exe",
+        project_root().join("target/release/jdsd_sekiro_practice_tool.exe"),
+        "jdsd_sekiro_practice_tool.exe",
     )?;
     dist.add(
-        project_root().join("target/release/libjdsd_er_practice_tool.dll"),
-        "jdsd_er_practice_tool.dll",
+        project_root().join("target/release/libjdsd_sekiro_practice_tool.dll"),
+        "jdsd_sekiro_practice_tool.dll",
     )?;
     dist.add(project_root().join("target/release/dinput8.dll"), "dinput8.dll")?;
     dist.add(project_root().join("lib/data/RELEASE-README.txt"), "README.txt")?;
-    dist.add(project_root().join("jdsd_er_practice_tool.toml"), "jdsd_er_practice_tool.toml")?;
+    dist.add(
+        project_root().join("jdsd_sekiro_practice_tool.toml"),
+        "jdsd_sekiro_practice_tool.toml",
+    )?;
 
     Ok(())
 }
@@ -156,14 +159,16 @@ fn run() -> Result<()> {
     }
 
     let mut buf = String::new();
-    File::open(project_root().join("jdsd_er_practice_tool.toml"))?.read_to_string(&mut buf)?;
-    File::create(project_root().join("target").join("release").join("jdsd_er_practice_tool.toml"))?
-        .write_all(buf.as_bytes())?;
+    File::open(project_root().join("jdsd_sekiro_practice_tool.toml"))?.read_to_string(&mut buf)?;
+    File::create(
+        project_root().join("target").join("release").join("jdsd_sekiro_practice_tool.toml"),
+    )?
+    .write_all(buf.as_bytes())?;
 
     let dll_path = project_root()
         .join("target")
         .join("release")
-        .join("libjdsd_er_practice_tool.dll")
+        .join("libjdsd_sekiro_practice_tool.dll")
         .canonicalize()?;
 
     let process = OwnedProcess::find_first_by_name("sekiro.exe")

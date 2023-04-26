@@ -23,7 +23,7 @@ use std::time::Instant;
 
 use config::Config;
 use const_format::formatcp;
-use hudhook::hooks::dx12::ImguiDx12Hooks;
+use hudhook::hooks::dx11::ImguiDx11Hooks;
 use hudhook::hooks::{ImguiRenderLoop, ImguiRenderLoopFlags};
 use hudhook::imgui::{self, *};
 use hudhook::tracing::metadata::LevelFilter;
@@ -34,6 +34,7 @@ use pkg_version::*;
 use practice_tool_utils::widgets::{scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH};
 use tracing_subscriber::prelude::*;
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_RSHIFT};
+use windows::Win32::UI::WindowsAndMessaging::ShowCursor;
 
 const MAJOR: usize = pkg_version_major!();
 const MINOR: usize = pkg_version_minor!();
@@ -68,6 +69,7 @@ struct PracticeTool {
 impl PracticeTool {
     fn new() -> Self {
         hudhook::utils::alloc_console();
+        hudhook::utils::enable_console_colors();
 
         fn load_config() -> Result<Config, String> {
             let config_path = practice_tool_utils::get_dll_path()
@@ -243,12 +245,7 @@ impl PracticeTool {
                     .title_bar(false)
                     .build(|| {
                         // self.pointers.cursor_show.set(true);
-                        ui.text(formatcp!(
-                            "Elden Ring Practice Tool v{}.{}.{}",
-                            MAJOR,
-                            MINOR,
-                            PATCH
-                        ));
+                        ui.text(formatcp!("Sekiro Practice Tool v{}.{}.{}", MAJOR, MINOR, PATCH));
                         ui.separator();
                         ui.text(format!(
                             "Press the {} key to open/close the tool's\ninterface.\n\nYou can \
@@ -397,8 +394,14 @@ impl ImguiRenderLoop for PracticeTool {
 
             match &self.ui_state {
                 UiState::MenuOpen => {},
-                UiState::Closed => {}, // self.pointers.cursor_show.set(false),
-                UiState::Hidden => {}, // self.pointers.cursor_show.set(false),
+                UiState::Closed => unsafe {
+                    ShowCursor(false);
+                }, // self.pointers.cursor_show.
+                // set(false),
+                UiState::Hidden => unsafe {
+                    ShowCursor(true);
+                }, /* self.pointers.cursor_show.
+                    * set(false), */
             }
         }
 
@@ -449,4 +452,4 @@ impl ImguiRenderLoop for PracticeTool {
     }
 }
 
-hudhook::hudhook!(PracticeTool::new().into_hook::<ImguiDx12Hooks>());
+hudhook::hudhook!(PracticeTool::new().into_hook::<ImguiDx11Hooks>());

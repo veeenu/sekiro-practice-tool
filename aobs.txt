@@ -55,3 +55,14 @@ sekiro.exe+9E2DBC - 48 83 C4 20           - add rsp,20 { 32 }
 80 3D ?? ?? ?? ?? 00 75 08 32 C0 48 83 C4 20
 
 Assume fixed offset?
+
+# Show cursor
+
+sekiro.exe+E01914 - 40 38 3D 2D57D702     - cmp [sekiro.exe+3B77048],dil { (1) }
+sekiro.exe+E0191B - 0FB6 DB               - movzx ebx,bl
+sekiro.exe+E0191E - 0F44 DF               - cmove ebx,edi
+sekiro.exe+E01921 - 84 DB                 - test bl,bl
+sekiro.exe+E01923 - 0F94 C3               - sete bl
+sekiro.exe+E01926 - 83 7D 40 FF           - cmp dword ptr [rbp+40],-01 { 255 }
+
+40 38 3D ?? ?? ?? ?? 0F B6 DB 0F 44 DF 84 DB 0F 94 C3 83 7D 40 FF
