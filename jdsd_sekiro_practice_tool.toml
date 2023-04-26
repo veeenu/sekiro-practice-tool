@@ -1,0 +1,38 @@
+commands = [
+  { savefile_manager = "o", hotkey_back = "q", hotkey_close = "escape" },
+  { flag = "render_world", hotkey="" },
+  { flag = "render_objects", hotkey="" },
+  { flag = "render_mobs", hotkey="" },
+  { flag = "render_effects", hotkey="" },
+  { flag = "debug_render0", hotkey="" },
+  { flag = "debug_render1", hotkey="" },
+  { flag = "debug_render2", hotkey="" },
+  { flag = "debug_render3", hotkey="" },
+  { flag = "debug_render4", hotkey="" },
+  { flag = "debug_render5", hotkey="" },
+  { flag = "debug_render6", hotkey="" },
+  { flag = "debug_render7", hotkey="" },
+  { flag = "debug_render8", hotkey="" },
+  { flag = "player_no_goods_consume", hotkey="" },
+  { flag = "player_no_resource_item_consume", hotkey="" },
+  { flag = "player_no_revival_consume", hotkey="" },
+  { flag = "player_hide", hotkey="" },
+  { flag = "player_no_dead", hotkey="" },
+  { flag = "all_no_dead", hotkey="" },
+  { flag = "all_no_damage", hotkey="" },
+  { flag = "all_no_hit", hotkey="" },
+  { flag = "all_no_attack", hotkey="" },
+  { flag = "all_no_move", hotkey="" },
+  { flag = "all_no_update_ai", hotkey="" },
+  { flag = "all_no_stamina_consume", hotkey="" },
+  { position = "H", modifier = "rshift" },
+  { position = "J", modifier = "rshift" },
+  { nudge = 1.0, nudge_up = "[", nudge_down = "]" },
+  { quitout = "P" }
+]
+
+[settings]
+log_level = "INFO"
+display = "0"
+dxgi_debug = false
+show_console = false
