@@ -8,9 +8,10 @@ crate-type = ["cdylib"]
 name = "dinput8"
  
 [dependencies]
-libsekiro = { path = "../libsekiro" }
+libsekiro = { path = "../lib/libsekiro" }
 u16cstr = "0.3.0"
 widestring = "0.5.1"
+once_cell.workspace = true
 
 [dependencies.windows]
 version = "0.48.0"

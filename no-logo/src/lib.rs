@@ -1,9 +1,9 @@
-#![feature(lazy_cell)]
 use std::ffi::c_void;
+use std::mem;
 use std::ptr::null_mut;
-use std::sync::LazyLock;
 
 use libsekiro::prelude::*;
+use once_cell::sync::Lazy;
 use u16cstr::u16str;
 use widestring::U16CString;
 use windows::core::*;
@@ -27,29 +27,31 @@ type FnHResult = unsafe extern "stdcall" fn() -> HRESULT;
 type FnGetClassObject =
     unsafe extern "stdcall" fn(*const c_void, *const c_void, *const c_void) -> HRESULT;
 
-static SYMBOLS: LazyLock<(
-    FnDirectInput8Create,
-    FnHResult,
-    FnGetClassObject,
-    FnHResult,
-    FnHResult,
-)> = LazyLock::new(|| unsafe {
-    apply_patch();
+static SYMBOLS: Lazy<(FnDirectInput8Create, FnHResult, FnGetClassObject, FnHResult, FnHResult)> =
+    Lazy::new(|| unsafe {
+        apply_patch();
 
-    let module = LoadLibraryW(PCWSTR(dinput8_path().as_ptr() as _)).unwrap();
+        type ProcType = unsafe extern "system" fn() -> isize;
+        let module = LoadLibraryW(PCWSTR(dinput8_path().as_ptr() as _)).unwrap();
 
-    (
-        std::mem::transmute(
-            GetProcAddress(module, PCSTR("DirectInput8Create\0".as_ptr())).unwrap(),
-        ),
-        std::mem::transmute(GetProcAddress(module, PCSTR("DllCanUnloadNow\0".as_ptr())).unwrap()),
-        std::mem::transmute(GetProcAddress(module, PCSTR("DllGetClassObject\0".as_ptr())).unwrap()),
-        std::mem::transmute(GetProcAddress(module, PCSTR("DllRegisterServer\0".as_ptr())).unwrap()),
-        std::mem::transmute(
-            GetProcAddress(module, PCSTR("DllUnregisterServer\0".as_ptr())).unwrap(),
-        ),
-    )
-});
+        (
+            mem::transmute::<ProcType, FnDirectInput8Create>(
+                GetProcAddress(module, PCSTR("DirectInput8Create\0".as_ptr())).unwrap(),
+            ),
+            mem::transmute::<ProcType, FnHResult>(
+                GetProcAddress(module, PCSTR("DllCanUnloadNow\0".as_ptr())).unwrap(),
+            ),
+            mem::transmute::<ProcType, FnGetClassObject>(
+                GetProcAddress(module, PCSTR("DllGetClassObject\0".as_ptr())).unwrap(),
+            ),
+            mem::transmute::<ProcType, FnHResult>(
+                GetProcAddress(module, PCSTR("DllRegisterServer\0".as_ptr())).unwrap(),
+            ),
+            mem::transmute::<ProcType, FnHResult>(
+                GetProcAddress(module, PCSTR("DllUnregisterServer\0".as_ptr())).unwrap(),
+            ),
+        )
+    });
 
 fn dinput8_path() -> U16CString {
     let mut sys_path = vec![0u16; 320];

@@ -1,17 +1,17 @@
 use std::str::FromStr;
 
 use hudhook::tracing::metadata::LevelFilter;
-use libsekiro::memedit::Bitflag;
 use libsekiro::prelude::*;
-use practice_tool_utils::widgets::Widget;
-use practice_tool_utils::{get_key_code, KeyState};
+use practice_tool_core::key::Key;
+use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
-use crate::widgets::flag::Flag;
-use crate::widgets::nudge_pos::NudgePosition;
-use crate::widgets::position::SavePosition;
-use crate::widgets::quitout::Quitout;
-use crate::widgets::savefile_manager::SavefileManager;
+use crate::widgets::flag::flag_widget;
+use crate::widgets::group::group;
+use crate::widgets::nudge_pos::nudge_position;
+use crate::widgets::position::save_position;
+use crate::widgets::quitout::quitout;
+use crate::widgets::savefile_manager::savefile_manager;
 
 #[cfg_attr(test, derive(Debug))]
 #[derive(Deserialize)]
@@ -20,14 +20,61 @@ pub(crate) struct Config {
     commands: Vec<CfgCommand>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct Settings {
     pub(crate) log_level: LevelFilterSerde,
-    pub(crate) display: KeyState,
-    #[serde(default)]
-    pub(crate) dxgi_debug: bool,
+    pub(crate) display: Key,
+    pub(crate) hide: Option<Key>,
     #[serde(default)]
     pub(crate) show_console: bool,
+    #[serde(default = "Indicator::default_set")]
+    pub(crate) indicators: Vec<Indicator>,
+}
+
+#[derive(Deserialize, Copy, Clone, Debug)]
+#[serde(try_from = "String")]
+pub(crate) enum Indicator {
+    Igt,
+    Position,
+    GameVersion,
+    ImguiDebug,
+}
+
+impl Indicator {
+    fn default_set() -> Vec<Indicator> {
+        vec![Indicator::GameVersion, Indicator::Position, Indicator::Igt]
+    }
+}
+
+impl TryFrom<String> for Indicator {
+    type Error = String;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "igt" => Ok(Indicator::Igt),
+            "position" => Ok(Indicator::Position),
+            "game_version" => Ok(Indicator::GameVersion),
+            "imgui_debug" => Ok(Indicator::ImguiDebug),
+            value => Err(format!("Unrecognized indicator: {value}")),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+enum PlaceholderOption<T> {
+    Data(T),
+    #[allow(dead_code)]
+    Placeholder(bool),
+}
+
+impl<T> PlaceholderOption<T> {
+    fn into_option(self) -> Option<T> {
+        match self {
+            PlaceholderOption::Data(d) => Some(d),
+            PlaceholderOption::Placeholder(_) => None,
+        }
+    }
 }
 
 #[cfg_attr(test, derive(Debug))]
@@ -36,31 +83,58 @@ pub(crate) struct Settings {
 enum CfgCommand {
     SavefileManager {
         #[serde(rename = "savefile_manager")]
-        hotkey_load: KeyState,
-        hotkey_back: KeyState,
-        hotkey_close: KeyState,
+        hotkey_load: PlaceholderOption<Key>,
     },
     Flag {
         flag: FlagSpec,
-        hotkey: Option<KeyState>,
+        hotkey: Option<Key>,
     },
     Position {
-        #[serde(rename = "position")]
-        hotkey: KeyState,
-        modifier: KeyState,
+        position: PlaceholderOption<Key>,
+        save: Option<Key>,
     },
     NudgePosition {
         nudge: f32,
-        nudge_up: Option<KeyState>,
-        nudge_down: Option<KeyState>,
+        nudge_up: Option<Key>,
+        nudge_down: Option<Key>,
     },
     Quitout {
         #[serde(rename = "quitout")]
-        hotkey: KeyState,
+        hotkey: PlaceholderOption<Key>,
+    },
+    Group {
+        #[serde(rename = "group")]
+        label: String,
+        commands: Vec<CfgCommand>,
     },
 }
 
-#[derive(Deserialize, Debug)]
+impl CfgCommand {
+    fn into_widget(self, settings: &Settings, chains: &Pointers) -> Box<dyn Widget> {
+        match self {
+            CfgCommand::Flag { flag, hotkey: key } => {
+                flag_widget(&flag.label, (flag.getter)(chains).clone(), key)
+            },
+            CfgCommand::SavefileManager { hotkey_load: key_load } => {
+                savefile_manager(key_load.into_option(), settings.display)
+            },
+            CfgCommand::Position { position, save } => {
+                save_position(chains.position.clone(), position.into_option(), save)
+            },
+            CfgCommand::NudgePosition { nudge, nudge_up, nudge_down } => {
+                nudge_position(chains.position.clone(), nudge, nudge_up, nudge_down)
+            },
+            CfgCommand::Quitout { hotkey } => quitout(chains.quitout.clone(), hotkey.into_option()),
+            CfgCommand::Group { label, commands } => group(
+                label.as_str(),
+                commands.into_iter().map(|c| c.into_widget(settings, chains)).collect(),
+                settings.display,
+            ),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
 #[serde(try_from = "String")]
 pub(crate) struct LevelFilterSerde(LevelFilter);
 
@@ -83,41 +157,11 @@ impl TryFrom<String> for LevelFilterSerde {
 
 impl Config {
     pub(crate) fn parse(cfg: &str) -> Result<Self, String> {
-        let de = toml::de::Deserializer::new(cfg);
-        serde_path_to_error::deserialize(de)
-            .map_err(|e| format!("TOML config error at {}: {}", e.path(), e.inner()))
+        toml::from_str::<Config>(cfg).map_err(|e| format!("TOML configuration parse error: {}", e))
     }
 
-    fn make_command(cmd: &CfgCommand, chains: &Pointers) -> Box<dyn Widget> {
-        let widget = match cmd {
-            CfgCommand::Flag { flag, hotkey } => {
-                Box::new(Flag::new(&flag.label, (flag.getter)(chains).clone(), *hotkey))
-                    as Box<dyn Widget>
-            },
-            CfgCommand::SavefileManager { hotkey_load, hotkey_back, hotkey_close } => {
-                SavefileManager::new_widget(*hotkey_load, *hotkey_back, *hotkey_close)
-            },
-            CfgCommand::Position { hotkey, modifier } => {
-                Box::new(SavePosition::new(chains.position.clone(), *hotkey, *modifier))
-            },
-            CfgCommand::NudgePosition { nudge, nudge_up, nudge_down } => Box::new(
-                NudgePosition::new(chains.position.clone(), *nudge, *nudge_up, *nudge_down),
-            ),
-            // CfgCommand::CycleSpeed { cycle_speed, hotkey } => Box::new(CycleSpeed::new(
-            //     cycle_speed,
-            //     [chains.animation_speed.clone(), chains.torrent_animation_speed.clone()],
-            //     *hotkey,
-            // )),
-            CfgCommand::Quitout { hotkey } => {
-                Box::new(Quitout::new(chains.quitout.clone(), *hotkey))
-            },
-        };
-
-        widget
-    }
-
-    pub(crate) fn make_commands(&self, chains: &Pointers) -> Vec<Box<dyn Widget>> {
-        self.commands.iter().map(|cmd| Config::make_command(cmd, chains)).collect()
+    pub(crate) fn make_commands(self, chains: &Pointers) -> Vec<Box<dyn Widget>> {
+        self.commands.into_iter().map(|c| c.into_widget(&self.settings, chains)).collect()
     }
 }
 
@@ -126,9 +170,10 @@ impl Default for Config {
         Config {
             settings: Settings {
                 log_level: LevelFilterSerde(LevelFilter::DEBUG),
-                display: KeyState::new(get_key_code("0").unwrap()),
-                dxgi_debug: false,
+                display: "0".parse().unwrap(),
+                hide: "rshift+0".parse().ok(),
                 show_console: false,
+                indicators: Indicator::default_set(),
             },
             commands: Vec::new(),
         }
@@ -184,7 +229,10 @@ impl TryFrom<String> for FlagSpec {
             (player_no_resource_item_consume, "No resource consume"),
             (player_no_revival_consume, "No revival consume"),
             (player_hide, "Hide"),
+            (player_silence, "Silence"),
             (player_no_dead, "No Dead"),
+            (player_exterminate, "Exterminate"),
+            (player_exterminate_stamina, "Exterminate Stamina"),
             (all_no_dead, "All No Dead"),
             (all_no_damage, "All No Damage"),
             (all_no_hit, "All No Hit"),

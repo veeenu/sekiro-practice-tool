@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use dll_syringe::process::OwnedProcess;
-use dll_syringe::Syringe;
+use hudhook::inject::Process;
 use hudhook::tracing::trace;
 use pkg_version::*;
 use semver::*;
@@ -75,10 +74,10 @@ fn perform_injection() -> Result<(), String> {
     let dll_path = dll_path.canonicalize().map_err(err_to_string)?;
     trace!("Injecting {:?}", dll_path);
 
-    let process = OwnedProcess::find_first_by_name("sekiro.exe")
-        .ok_or_else(|| "Could not find process".to_string())?;
-    let syringe = Syringe::for_process(process);
-    syringe.inject(dll_path).map_err(|e| format!("{e}"))?;
+    Process::by_name("sekiro.exe")
+        .map_err(|e| format!("Could not find process: {e:?}"))?
+        .inject(dll_path)
+        .map_err(|e| format!("Could not inject DLL: {e:?}"))?;
 
     Ok(())
 }
@@ -101,6 +100,10 @@ fn main() {
     match get_latest_version() {
         Ok((latest_version, download_url, release_notes)) => {
             if latest_version > current_version {
+                let release_notes = match release_notes.find("## What's Changed") {
+                    Some(i) => release_notes[..i].trim(),
+                    None => &release_notes,
+                };
                 let update_msg = format!(
                     "A new version of the practice tool is available!\n\nLatest version: \
                      {}\nInstalled version: {}\n\nRelease notes:\n{}\n\nDo you want to download \

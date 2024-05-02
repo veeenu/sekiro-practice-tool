@@ -1,127 +1,78 @@
 # Sekiro Practice Tool
 
+[![build](https://github.com/veeenu/sekiro-practice-tool/actions/workflows/build.yml/badge.svg)](https://github.com/veeenu/sekiro-practice-tool/actions)
 [![GitHub all releases](https://img.shields.io/github/downloads/veeenu/sekiro-practice-tool/total)](https://github.com/veeenu/sekiro-practice-tool/releases/latest)
 [![GitHub](https://img.shields.io/github/license/veeenu/sekiro-practice-tool)](https://github.com/veeenu/sekiro-practice-tool/blob/master/LICENSE) 
 [![Discord](https://img.shields.io/discord/267623298647457802)](https://discord.gg/CVHbN7eF)
 [![Twitch](https://img.shields.io/twitch/status/johndisandonato?style=social)](https://twitch.tv/johndisandonato)
+[![Patreon](https://img.shields.io/badge/Support_me-Patreon-orange)](https://www.patreon.com/johndisandonato)
 
 A tool for practicing speedruns. It is compatible with all Sekiro patches.
 
 Made with ❤️ by [johndisandonato](https://twitch.tv/johndisandonato).
 
-To run the tool, extract all files from the zip archive and double-click the
-`.exe` file he tool will automatically appear over the game, and it can be
-toggled by pressing `0`.
+The tool is free, and will always be free for everyone. If you enjoy it, please consider 
+[supporting me](https://www.patreon.com/johndisandonato)!
 
-You can download the **latest stable release** [here](https://github.com/veeenu/sekiro-practice-tool/releases/latest).
+![Screenshot](lib/data/screenshot.jpg)
 
-If you need help, **please first read** the [Known Issues](#known-issues) and [FAQ](#troubleshooting--faq) sections for
-solutions, or ways to get in touch.
+## Getting started
 
-# Troubleshooting / FAQ
+Download the **latest stable release** [here](https://github.com/veeenu/sekiro-practice-tool/releases/latest).
 
-## My game crashes
+Prerequisites:
 
-- Always start with a clean zip of the latest release.
-- Wait for the main menu of the game to appear before launching the tool.
-- If you are running in [fullscreen](https://github.com/veeenu/eldenring-practice-tool/issues/23), try borderless or windowed mode.
-- Make sure you have the latest version of your GPU drivers.
-- Antivirus software and old Windows versions will interact poorly with the tool, as it
-  employs some techniques that are usually typical of malware. Don't worry, the tool is
-  safe! The source code is fully available and auditable in this repository.
-- If all else fails, [submit an issue](#i-found-an-issue-what-do-i-do).
+- Steam must be open. Offline mode is fine, but the program must be started.
+- Antiviruses are disabled. This includes Windows Defender. If you don't want to do that, make sure to whitelist the contents of the practice tool in your antivirus.
+- You have a legitimate copy of the game. Pirated copies will never be supported.
 
-## "Inaccessible target process", "Could not find process"
+## Running the tool
 
-- You have not closed your antivirus. Close it.
+### Standalone
 
-## I found an issue. What do I do?
+- Extract all files from the zip archive. Anywhere will do.
+- Start Sekiro.
+- Double-click `jdsd_sekiro_practice_tool.exe`.
 
-- Apply the following settings to `jdsd_sekiro_practice_tool.toml`:
-  - `log_level = "TRACE"` 
-  - `dxgi_debug = true`
-- Reproduce the steps tha cause your bug.
-- Go [here](https://github.com/veeenu/sekiro-practice-tool/issues/new) and submit a new issue:
-  explain the problem, compress the `jdsd_sekiro_practice_tool.log` file, and attach it.
+The tool will automatically appear over the game. Press `0` to open and close its interface.
 
-I'll do my best to get back to you and fix the bug.
+### Installed
 
-While troubleshooting bugs, I may ask you to use the [nightly release](https://github.com/veeenu/sekiro-practice-tool/releases/tag/nightly)
-instead of the latest stable release. This is an automated release with the very latest changes,
-intended for faster issues feedback cycles. Don't use it otherwise!
+- Extract all files from the zip archive.
+- Rename `jdsd_sekiro_practice_tool.dll` to `dinput8.dll`. Make sure your [file extensions are visible](https://www.howtogeek.com/205086/beginner-how-to-make-windows-show-file-extensions/)
+  to ensure you are naming the file correctly.
+- Copy `dinput8.dll` and `jdsd_sekiro_practice_tool.toml` to you Sekiro game folder.
+  The files must be in the same folder as `sekiro.exe`.
+- Start Sekiro normally.
 
-## Where are all the key bindings?
+The tool is now installed. To load it, start the game, press the right shift button and 
+keep it pressed for a few seconds until the tool appears on screen.
 
-You can customize the default ones or add your own by editing
-`jdsd_sekiro_practice_tool.toml` with your favorite text editor.
+If you don't do that, the tool won't load and the game will start normally.
 
-The bundled file contains all possible settings with predefined hotkeys and is
-mostly self-explanatory.
+## Running the tool on Linux
 
-You can find a list of supported hotkey codes [here](https://github.com/veeenu/darksoulsiii-practice-tool/blob/7aa6ac33c6f155d35d0fa99ab100c8caa13913f9/practice-tool/src/util/vk.rs#L15-L186).
+The tool fully supports Linux and should run on Steam Deck seamlessly.
 
-## What versions of the game are supported?
+### Standalone
 
-All of them! When new patches come out, a new release with compatibility will be drafted as soon as possible.
+If you want to run the tool in a standalone fashion, I recommend [protontricks](https://github.com/Matoking/protontricks):
 
-## Will I get banned if I use this online?
-
-Use at your own risk. Bans are unlikely, but in doubt, make backups of your savefiles and only use the tool offline.
-By using the tool, you agree that I will not be held liable for any bans or unintended side effects resulting from the usage of the tool.
-
-## I want to talk to you!
-
-You can contact me on [my Discord server](https://discord.gg/jCVjxjHZ).
-Please use the [Practice Tool help channel](https://discord.com/channels/267623298647457802/996101875214585867)
-if you have questions about the Practice Tool.
-
-## I want to watch your speedruns!
-
-Sure! See you over here 👉 [https://twitch.tv/johndisandonato](https://twitch.tv/johndisandonato)!
-
-# Development
-
-You will need:
-
-- A recent [Rust nightly](https://rustup.rs/)
-- The [MSVC toolchain](https://visualstudio.microsoft.com/vs/features/cplusplus/)
-
-Most building functions are exposed by the [xtasks](https://github.com/matklad/cargo-xtask).
-
-## Run the tool
-
-```
-cargo xtask run
+```sh
+protontricks-launch --appid 814380 jdsd_sekiro_practice_tool.exe
 ```
 
-This task will compile and run the practice tool from the repo.
+### Installed
 
-## Distribution artifacts
+Follow the same instructions as above. Additionally, you have to set the launch options in Steam as follows:
 
-```
-cargo xtask dist
-```
-
-This task will create release artifacts in `target/dist/jdsd_sekiro_practice_tool.zip`.
-
-## Code generation
-
-```
-cargo xtask codegen
+```sh
+WINEDLLOVERRIDES="dinput8=n,b" %command%
 ```
 
-This task is responsible for generating Rust code from various external sources.
-Examples: params from [Paramdex](https://github.com/soulsmods/Paramdex), base pointers for
-array-of-byte scans from the Sekiro executables.
+## Help
 
-## Environment
+If the tool doesn't work, you need help, or want to get in touch, read the [troubleshooting guide](TROUBLESHOOTING.md).
 
-Some tasks require you to have environment variables defined that are dependent on your system.
-You can put all your task-specific environment variables in a `.env` file in the top level directory
-of the project. Complete example:
-
-```
-$ cat .env
-ERPT_PATCHES_PATH="C:/Videogames/SekiroPatches"
-```
+If you are looking to submit a patch, check the [contributing guide](CONTRIBUTING.md).
 
