@@ -12,8 +12,8 @@ To run the tool with installation:
 - Extract all the files from the archive in a directory.
 - Rename `jdsd_sekiro_practice_tool.dll` to `dinput8.dll`. Make sure your file extensions are visible
   to ensure you are naming the file correctly.
-- Copy `dinput8.dll` and `jdsd_sekiro_practice_tool.toml` to you Dark Souls III Game folder. The
-  files must be in the same folder as `Sekiro.exe`.
+- Copy `dinput8.dll` and `jdsd_sekiro_practice_tool.toml` to you Sekiro Game folder. The
+  files must be in the same folder as `sekiro.exe`.
 - Start Sekiro normally.
 - While it is starting, press and hold right shift for a few seconds, until the tool appears.
 

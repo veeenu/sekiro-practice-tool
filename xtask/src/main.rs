@@ -61,7 +61,7 @@ fn dist() -> Result<()> {
     Distribution::new("jdsd_sekiro_practice_tool.zip")
         .with_artifact("libjdsd_sekiro_practice_tool.dll", "jdsd_sekiro_practice_tool.dll")
         .with_artifact("jdsd_sekiro_practice_tool.exe", "jdsd_sekiro_practice_tool.exe")
-        .with_file("practice-tool/RELEASE-README.txt", "README.txt")
+        .with_file("practice-tool/data/RELEASE-README.txt", "README.txt")
         .with_file("jdsd_sekiro_practice_tool.toml", "jdsd_sekiro_practice_tool.toml")
         .build(&["--locked", "--release", "--workspace", "--exclude", "xtask"])
 }
