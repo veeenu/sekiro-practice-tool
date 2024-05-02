@@ -199,6 +199,7 @@ impl TryFrom<String> for FlagSpec {
                 (player_no_resource_item_consume, "No resource consume"),
                 (player_no_revival_consume, "No revival consume"),
                 (player_hide, "Hide"),
+                (player_silence, "Silence"),
                 (player_no_dead, "No Dead"),
                 (player_exterminate, "Exterminate"),
                 (player_exterminate_stamina, "Exterminate Stamina"),

@@ -4,6 +4,7 @@ commands = [
   { flag = "player_no_resource_item_consume", hotkey = "1" },
   { flag = "player_no_revival_consume", hotkey = "1" },
   { flag = "player_hide", hotkey = "2" },
+  { flag = "player_silence", hotkey = "2" },
   { flag = "player_no_dead", hotkey = "3" },
   { flag = "player_exterminate", hotkey = "4" },
   { flag = "player_exterminate_stamina", hotkey = "5" },
@@ -30,11 +31,6 @@ commands = [
     { flag = "debug_render7" },
     { flag = "debug_render8" }
   ]},
-  # { flag = "render_world" },
-  # { flag = "render_objects" },
-  # { flag = "render_mobs" },
-  # { flag = "render_effects" },
-  # { flag = "all_no_stamina_consume" },
   { quitout = "P" }
 ]
 
