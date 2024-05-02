@@ -1,0 +1,28 @@
+name: Build
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install stable --target x86_64-pc-windows-msvc --profile minimal -c rustfmt clippy
+
+      - name: Distribution build
+        run: cargo xtask dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: jdsd_sekiro_practice_tool
+          path: target/dist/jdsd_sekiro_practice_tool.zip
+
