@@ -1,3 +1,4 @@
+use std::fmt::Write;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
@@ -13,7 +14,7 @@ use practice_tool_core::crossbeam_channel::{self, Receiver, Sender};
 use practice_tool_core::widgets::{scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH};
 use tracing_subscriber::prelude::*;
 
-use crate::config::{Config, Settings};
+use crate::config::{Config, Indicator, Settings};
 use crate::util;
 
 const MAJOR: usize = pkg_version_major!();
@@ -46,6 +47,9 @@ pub struct PracticeTool {
     log_tx: Sender<String>,
     ui_state: UiState,
     fonts: Option<FontIDs>,
+
+    position_bufs: [String; 3],
+    igt_buf: String,
 
     config_err: Option<String>,
 }
@@ -150,6 +154,8 @@ impl PracticeTool {
             config_err,
             log_rx,
             log_tx,
+            position_bufs: Default::default(),
+            igt_buf: Default::default(),
         }
     }
 
@@ -256,28 +262,60 @@ impl PracticeTool {
                             open::that("https://github.com/veeenu/sekiro-practice-tool/issues/new")
                                 .ok();
                         }
+                        ui.same_line();
+                        if ui.button("Support") {
+                            open::that("https://patreon.com/johndisandonato").ok();
+                        }
                     });
 
-                ui.text(&self.version_label);
+                for indicator in &self.settings.indicators {
+                    match indicator {
+                        Indicator::GameVersion => {
+                            ui.text(&self.version_label);
+                        },
+                        Indicator::Position => {
+                            if let Some([x, y, z, _]) = self.pointers.position.read() {
+                                self.position_bufs.iter_mut().for_each(String::clear);
+                                write!(self.position_bufs[0], "{x:.2}").ok();
+                                write!(self.position_bufs[1], "{y:.2}").ok();
+                                write!(self.position_bufs[2], "{z:.2}").ok();
 
-                if let Some([x, y, z, _]) = self.pointers.position.read() {
-                    ui.text_colored([0.7048, 0.1228, 0.1734, 1.], format!("{x:.2}"));
-                    ui.same_line();
-                    ui.text_colored([0.1161, 0.5327, 0.3512, 1.], format!("{y:.2}"));
-                    ui.same_line();
-                    ui.text_colored([0.1445, 0.2852, 0.5703, 1.], format!("{z:.2}"));
-                }
-
-                if let Some(igt) = self.pointers.igt.read() {
-                    let millis = (igt % 1000) / 10;
-                    let total_seconds = igt / 1000;
-                    let seconds = total_seconds % 60;
-                    let minutes = total_seconds / 60 % 60;
-                    let hours = total_seconds / 3600;
-                    ui.text(format!(
-                        "IGT {:02}:{:02}:{:02}.{:02}",
-                        hours, minutes, seconds, millis
-                    ));
+                                ui.text_colored(
+                                    [0.7048, 0.1228, 0.1734, 1.],
+                                    &self.position_bufs[0],
+                                );
+                                ui.same_line();
+                                ui.text_colored(
+                                    [0.1161, 0.5327, 0.3512, 1.],
+                                    &self.position_bufs[1],
+                                );
+                                ui.same_line();
+                                ui.text_colored(
+                                    [0.1445, 0.2852, 0.5703, 1.],
+                                    &self.position_bufs[2],
+                                );
+                            }
+                        },
+                        Indicator::Igt => {
+                            if let Some(igt) = self.pointers.igt.read() {
+                                let millis = (igt % 1000) / 10;
+                                let total_seconds = igt / 1000;
+                                let seconds = total_seconds % 60;
+                                let minutes = total_seconds / 60 % 60;
+                                let hours = total_seconds / 3600;
+                                self.igt_buf.clear();
+                                write!(
+                                    self.igt_buf,
+                                    "IGT {hours:02}:{minutes:02}:{seconds:02}.{millis:02}",
+                                )
+                                .ok();
+                                ui.text(&self.igt_buf);
+                            }
+                        },
+                        Indicator::ImguiDebug => {
+                            imgui_debug(ui);
+                        },
+                    }
                 }
 
                 if !ui.io().want_capture_keyboard {
@@ -426,4 +464,19 @@ impl ImguiRenderLoop for PracticeTool {
             }]),
         });
     }
+}
+
+// Display some imgui debug information. Very expensive.
+fn imgui_debug(ui: &Ui) {
+    let io = ui.io();
+    ui.text(format!("Mouse position     {:?}", io.mouse_pos));
+    ui.text(format!("Mouse down         {:?}", io.mouse_down));
+    ui.text(format!("Want capture mouse {:?}", io.want_capture_mouse));
+    ui.text(format!("Want capture kbd   {:?}", io.want_capture_keyboard));
+    ui.text(format!("Want text input    {:?}", io.want_text_input));
+    ui.text(format!("Want set mouse pos {:?}", io.want_set_mouse_pos));
+    ui.text(format!("Any item active    {:?}", ui.is_any_item_active()));
+    ui.text(format!("Any item hovered   {:?}", ui.is_any_item_hovered()));
+    ui.text(format!("Any item focused   {:?}", ui.is_any_item_focused()));
+    ui.text(format!("Any mouse down     {:?}", ui.is_any_mouse_down()));
 }
