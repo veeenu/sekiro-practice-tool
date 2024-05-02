@@ -34,6 +34,8 @@ pub struct Pointers {
     pub player_no_revival_consume: Bitflag<u8>,
     pub player_hide: Bitflag<u8>,
     pub player_no_dead: Bitflag<u8>,
+    pub player_exterminate: Bitflag<u8>,
+    pub player_exterminate_stamina: Bitflag<u8>,
 
     pub all_no_dead: Bitflag<u8>,
     pub all_no_damage: Bitflag<u8>,
@@ -108,6 +110,8 @@ impl Pointers {
             player_no_revival_consume: bitflag!(0b1; debug_flags + 2),
             player_hide: bitflag!(0b1; debug_flags + 6),
             player_no_dead: bitflag!(0b1; debug_flags.saturating_add_signed(offs_player_no_dead)),
+            player_exterminate: bitflag!(0b1; debug_flags.saturating_add_signed(offs_player_exterminate)),
+            player_exterminate_stamina: bitflag!(0b1; debug_flags.saturating_add_signed(offs_player_exterminate_stamina)),
             all_no_dead: bitflag!(0b1; debug_flags + 8),
             all_no_damage: bitflag!(0b1; debug_flags + 9),
             all_no_hit: bitflag!(0b1; debug_flags + 10),
