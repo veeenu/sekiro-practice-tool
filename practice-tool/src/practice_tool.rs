@@ -134,7 +134,7 @@ impl PracticeTool {
 
         let version_label = {
             let (maj, min, patch) = VERSION.tuple();
-            format!("Ver {}.{:02}.{}", maj, min, patch)
+            format!("Game Ver {}.{:02}.{}", maj, min, patch)
         };
         let (log_tx, log_rx) = crossbeam_channel::unbounded();
         info!("Practice tool initialized");

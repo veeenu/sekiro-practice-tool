@@ -7,6 +7,7 @@ use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
 use crate::widgets::flag::flag_widget;
+use crate::widgets::group::group;
 use crate::widgets::nudge_pos::nudge_position;
 use crate::widgets::position::save_position;
 use crate::widgets::quitout::quitout;
@@ -70,6 +71,11 @@ enum CfgCommand {
         #[serde(rename = "quitout")]
         hotkey: PlaceholderOption<Key>,
     },
+    Group {
+        #[serde(rename = "group")]
+        label: String,
+        commands: Vec<CfgCommand>,
+    },
 }
 
 impl CfgCommand {
@@ -88,6 +94,11 @@ impl CfgCommand {
                 nudge_position(chains.position.clone(), nudge, nudge_up, nudge_down)
             },
             CfgCommand::Quitout { hotkey } => quitout(chains.quitout.clone(), hotkey.into_option()),
+            CfgCommand::Group { label, commands } => group(
+                label.as_str(),
+                commands.into_iter().map(|c| c.into_widget(settings, chains)).collect(),
+                settings.display,
+            ),
         }
     }
 }
@@ -168,33 +179,36 @@ impl TryFrom<String> for FlagSpec {
                 }
             }
         }
-        flag_spec!(value.as_str(), [
-            (render_world, "Render World"),
-            (render_objects, "Render Objects"),
-            (render_mobs, "Render Mobs"),
-            (render_effects, "Render Effects"),
-            (debug_render0, "Debug Render #0"),
-            (debug_render1, "Debug Render #1"),
-            (debug_render2, "Debug Render #2"),
-            (debug_render3, "Debug Render #3"),
-            (debug_render4, "Debug Render #4"),
-            (debug_render5, "Debug Render #5"),
-            (debug_render6, "Debug Render #6"),
-            (debug_render7, "Debug Render #7"),
-            (debug_render8, "Debug Render #8"),
-            (player_no_goods_consume, "No goods consume"),
-            (player_no_resource_item_consume, "No resource consume"),
-            (player_no_revival_consume, "No revival consume"),
-            (player_hide, "Hide"),
-            (player_no_dead, "No Dead"),
-            (all_no_dead, "All No Dead"),
-            (all_no_damage, "All No Damage"),
-            (all_no_hit, "All No Hit"),
-            (all_no_attack, "All No Attack"),
-            (all_no_move, "All No Move"),
-            (all_no_update_ai, "All No Update AI"),
-            (all_no_stamina_consume, "All No Stamina Consume"),
-        ])
+        flag_spec!(
+            value.as_str(),
+            [
+                (render_world, "Render World"),
+                (render_objects, "Render Objects"),
+                (render_mobs, "Render Mobs"),
+                (render_effects, "Render Effects"),
+                (debug_render0, "Debug Render #0"),
+                (debug_render1, "Debug Render #1"),
+                (debug_render2, "Debug Render #2"),
+                (debug_render3, "Debug Render #3"),
+                (debug_render4, "Debug Render #4"),
+                (debug_render5, "Debug Render #5"),
+                (debug_render6, "Debug Render #6"),
+                (debug_render7, "Debug Render #7"),
+                (debug_render8, "Debug Render #8"),
+                (player_no_goods_consume, "No goods consume"),
+                (player_no_resource_item_consume, "No resource consume"),
+                (player_no_revival_consume, "No revival consume"),
+                (player_hide, "Hide"),
+                (player_no_dead, "No Dead"),
+                (all_no_dead, "All No Dead"),
+                (all_no_damage, "All No Damage"),
+                (all_no_hit, "All No Hit"),
+                (all_no_attack, "All No Attack"),
+                (all_no_move, "All No Move"),
+                (all_no_update_ai, "All No Update AI"),
+                (all_no_stamina_consume, "All No Stamina Consume"),
+            ]
+        )
     }
 }
 
