@@ -5,6 +5,7 @@ use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 
 use crate::codegen::base_addresses::BaseAddresses;
 use crate::memedit::{Bitflag, PointerChain};
+use crate::prelude::{Version, VERSION};
 use crate::{bitflag, pointer_chain};
 
 pub struct Pointers {
@@ -67,6 +68,21 @@ impl Pointers {
             ..
         } = base_addresses;
 
+        let offs_player_no_dead: isize = match *VERSION {
+            Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => 33,
+            Version::V1_05_0 | Version::V1_06_0 => -3,
+        };
+
+        let offs_player_exterminate: isize = match *VERSION {
+            Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => 34,
+            Version::V1_05_0 | Version::V1_06_0 => -2,
+        };
+
+        let offs_player_exterminate_stamina: isize = match *VERSION {
+            Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => 35,
+            Version::V1_05_0 | Version::V1_06_0 => -1,
+        };
+
         Pointers {
             position: pointer_chain!(player_position, 0x48, 0x28, 0x80),
             quitout: pointer_chain!(quitout, 0x23C),
@@ -91,7 +107,7 @@ impl Pointers {
             player_no_resource_item_consume: bitflag!(0b1; debug_flags + 1),
             player_no_revival_consume: bitflag!(0b1; debug_flags + 2),
             player_hide: bitflag!(0b1; debug_flags + 6),
-            player_no_dead: bitflag!(0b1; debug_flags + 33),
+            player_no_dead: bitflag!(0b1; debug_flags.saturating_add_signed(offs_player_no_dead)),
             all_no_dead: bitflag!(0b1; debug_flags + 8),
             all_no_damage: bitflag!(0b1; debug_flags + 9),
             all_no_hit: bitflag!(0b1; debug_flags + 10),
