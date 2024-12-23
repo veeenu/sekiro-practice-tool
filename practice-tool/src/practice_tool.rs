@@ -6,7 +6,7 @@ use const_format::formatcp;
 use hudhook::imgui::*;
 use hudhook::tracing::metadata::LevelFilter;
 use hudhook::tracing::{error, info};
-use hudhook::{ImguiRenderLoop, TextureLoader};
+use hudhook::{ImguiRenderLoop, RenderContext};
 use libsekiro::pointers::Pointers;
 use libsekiro::version::VERSION;
 use pkg_version::*;
@@ -444,7 +444,7 @@ impl ImguiRenderLoop for PracticeTool {
         drop(font_token);
     }
 
-    fn initialize(&mut self, ctx: &mut Context, _: TextureLoader) {
+    fn initialize(&mut self, ctx: &mut Context, _: &mut dyn RenderContext) {
         let fonts = ctx.fonts();
         self.fonts = Some(FontIDs {
             small: fonts.add_font(&[FontSource::TtfData {
