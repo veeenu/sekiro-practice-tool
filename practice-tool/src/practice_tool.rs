@@ -199,9 +199,17 @@ impl PracticeTool {
                 {
                     self.ui_state = UiState::Closed;
                     // self.pointers.show_cursor.set(false);
-                    if option_env!("CARGO_XTASK_DIST").is_none() {
-                        hudhook::eject();
-                    }
+                }
+
+                if option_env!("CARGO_XTASK_DIST").is_none()
+                    && ui.button_with_size("Eject", [
+                        BUTTON_WIDTH * scaling_factor(ui),
+                        BUTTON_HEIGHT,
+                    ])
+                {
+                    self.ui_state = UiState::Closed;
+                    self.pointers.show_cursor.set(false);
+                    hudhook::eject();
                 }
             });
     }
