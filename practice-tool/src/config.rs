@@ -36,6 +36,7 @@ pub(crate) struct Settings {
 pub(crate) enum IndicatorType {
     Igt,
     Position,
+    PositionChange,
     GameVersion,
     ImguiDebug,
     FrameCount,
@@ -54,6 +55,7 @@ impl Indicator {
             Indicator { indicator: IndicatorType::GameVersion, enabled: true },
             Indicator { indicator: IndicatorType::Igt, enabled: true },
             Indicator { indicator: IndicatorType::Position, enabled: false },
+            Indicator { indicator: IndicatorType::PositionChange, enabled: false },
             Indicator { indicator: IndicatorType::FrameCount, enabled: false },
             Indicator { indicator: IndicatorType::ImguiDebug, enabled: false },
         ]
@@ -74,6 +76,9 @@ impl TryFrom<IndicatorConfig> for Indicator {
             "igt" => Ok(Indicator { indicator: IndicatorType::Igt, enabled: indicator.enabled }),
             "position" => {
                 Ok(Indicator { indicator: IndicatorType::Position, enabled: indicator.enabled })
+            },
+            "position_change" => {
+                Ok(Indicator { indicator: IndicatorType::PositionChange, enabled: indicator.enabled })
             },
             "game_version" => {
                 Ok(Indicator { indicator: IndicatorType::GameVersion, enabled: indicator.enabled })
