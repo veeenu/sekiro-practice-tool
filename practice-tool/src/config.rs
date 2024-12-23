@@ -38,6 +38,7 @@ pub(crate) enum IndicatorType {
     Position,
     GameVersion,
     ImguiDebug,
+    FrameCount,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -53,6 +54,7 @@ impl Indicator {
             Indicator { indicator: IndicatorType::GameVersion, enabled: true },
             Indicator { indicator: IndicatorType::Igt, enabled: true },
             Indicator { indicator: IndicatorType::Position, enabled: false },
+            Indicator { indicator: IndicatorType::FrameCount, enabled: false },
             Indicator { indicator: IndicatorType::ImguiDebug, enabled: false },
         ]
     }
@@ -75,6 +77,9 @@ impl TryFrom<IndicatorConfig> for Indicator {
             },
             "game_version" => {
                 Ok(Indicator { indicator: IndicatorType::GameVersion, enabled: indicator.enabled })
+            },
+            "framecount" => {
+                Ok(Indicator { indicator: IndicatorType::FrameCount, enabled: indicator.enabled })
             },
             "imgui_debug" => {
                 Ok(Indicator { indicator: IndicatorType::ImguiDebug, enabled: indicator.enabled })
