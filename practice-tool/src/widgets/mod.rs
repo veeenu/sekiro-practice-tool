@@ -1,4 +1,5 @@
 pub(crate) mod flag;
+pub(crate) mod label;
 pub(crate) mod group;
 pub(crate) mod nudge_pos;
 pub(crate) mod position;
