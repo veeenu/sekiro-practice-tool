@@ -91,6 +91,11 @@ pub fn get_base_addresses() {
             ],
             false,
         ),
+        aob_direct(
+            "FontPatch",
+            &["48 8b fa 49 8b f0 48 8b d9"],
+            false,
+        ),
     ];
 
     codegen::codegen_base_addresses(base_addresses_rs_path(), patches_paths(), aobs)

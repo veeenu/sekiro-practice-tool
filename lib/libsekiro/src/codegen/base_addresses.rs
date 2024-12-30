@@ -11,6 +11,7 @@ pub struct BaseAddresses {
     pub debug_flags: usize,
     pub show_cursor: usize,
     pub no_logo: usize,
+    pub font_patch: usize,
 }
 
 impl BaseAddresses {
@@ -24,6 +25,7 @@ impl BaseAddresses {
             debug_flags: self.debug_flags + base,
             show_cursor: self.show_cursor + base,
             no_logo: self.no_logo,
+            font_patch: self.font_patch,
         }
     }
 }
@@ -50,7 +52,7 @@ impl TryFrom<(u32, u32, u32)> for Version {
             (maj, min, patch) => {
                 log::error!("Unrecognized version {maj}.{min:02}.{patch}");
                 Err(())
-            },
+            }
         }
     }
 }
@@ -88,6 +90,7 @@ pub const BASE_ADDRESSES_1_02_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b67f59,
     show_cursor: 0x3b77048,
     no_logo: 0xdebf2b,
+    font_patch: 0x2505974,
 };
 
 pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
@@ -99,6 +102,7 @@ pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
     no_logo: 0xdec85b,
+    font_patch: 0x25068e4,
 };
 
 pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
@@ -110,6 +114,7 @@ pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
     no_logo: 0xdec85b,
+    font_patch: 0x25068e4,
 };
 
 pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
@@ -121,6 +126,7 @@ pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3d7a2c9,
     show_cursor: 0x3d8986c,
     no_logo: 0xe1b1ab,
+    font_patch: 0x263b894,
 };
 
 pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
@@ -132,4 +138,6 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3d7a369,
     show_cursor: 0x3d8990c,
     no_logo: 0xe1b51b,
+    font_patch: 0x263bc14,
 };
+

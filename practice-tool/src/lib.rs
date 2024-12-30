@@ -90,8 +90,25 @@ unsafe fn apply_no_logo() {
     }
 }
 
+// Credits to ElaDiDu for the font crash fix
+unsafe fn apply_font_patch() {
+    let module_base = GetModuleHandleW(PCWSTR(null_mut())).unwrap();
+    let offset = base_addresses::BaseAddresses::from(*VERSION).font_patch;
+
+    let ptr = (module_base.0 as usize + offset - 0x24) as *mut u8;
+    let mut old = PAGE_PROTECTION_FLAGS(0);
+    if *ptr == 0x48 && VirtualProtect(ptr as _, 1, PAGE_EXECUTE_READWRITE, &mut old).is_ok() {
+        (*ptr) = 0xC3;
+        VirtualProtect(ptr as _, 1, old, &mut old).ok();
+    }
+}
+
 fn start_practice_tool(hmodule: HINSTANCE) {
     let practice_tool = PracticeTool::new();
+
+    unsafe {
+        apply_font_patch();
+    }
 
     if let Err(e) = Hudhook::builder()
         .with::<ImguiDx11Hooks>(practice_tool)
