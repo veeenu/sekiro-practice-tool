@@ -8,7 +8,7 @@ use hudhook::tracing::metadata::LevelFilter;
 use hudhook::tracing::{error, info};
 use hudhook::{ImguiRenderLoop, RenderContext};
 use libsekiro::pointers::Pointers;
-use libsekiro::version::VERSION;
+use libsekiro::version;
 use pkg_version::*;
 use practice_tool_core::crossbeam_channel::{self, Receiver, Sender};
 use practice_tool_core::widgets::{scaling_factor, Widget, BUTTON_HEIGHT, BUTTON_WIDTH};
@@ -143,7 +143,7 @@ impl PracticeTool {
         let widgets = config.make_commands(&pointers);
 
         let version_label = {
-            let (maj, min, patch) = VERSION.tuple();
+            let (maj, min, patch) = version::get_version().into();
             format!("Game Ver {}.{:02}.{}", maj, min, patch)
         };
         let (log_tx, log_rx) = crossbeam_channel::unbounded();

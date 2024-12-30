@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use practice_tool_tasks::codegen::{self, aob_indirect_twice};
+use practice_tool_tasks::codegen::{self, aob_direct, aob_indirect, aob_indirect_twice};
 use textwrap::dedent;
 
 fn patches_paths() -> impl Iterator<Item = PathBuf> {
@@ -15,7 +15,7 @@ fn patches_paths() -> impl Iterator<Item = PathBuf> {
         .read_dir()
         .expect("Couldn't scan patches directory")
         .map(Result::unwrap)
-        .map(|dir| dir.path().join("Game").join("sekiro.exe"))
+        .map(|dir| dir.path().join("sekiro.exe"))
 }
 
 fn base_addresses_rs_path() -> PathBuf {
@@ -24,6 +24,7 @@ fn base_addresses_rs_path() -> PathBuf {
         .nth(1)
         .unwrap()
         .to_path_buf()
+        .join("lib")
         .join("libsekiro")
         .join("src")
         .join("codegen")
@@ -83,13 +84,11 @@ pub fn get_base_addresses() {
             7,
             true,
         ),
-        aob_indirect_twice(
+        aob_direct(
             "NoLogo",
             &[
                 r#"74 30 48 8D 54 24 30 48 8B CD E8 ?? ?? ?? ?? 90 BB 01 00 00 00 89 5C 24 20 44 0F B6 4E 04"#,
             ],
-            0,
-            0,
             false,
         ),
     ];

@@ -23,7 +23,7 @@ impl BaseAddresses {
             player_position: self.player_position + base,
             debug_flags: self.debug_flags + base,
             show_cursor: self.show_cursor + base,
-            no_logo: self.no_logo + base,
+            no_logo: self.no_logo,
         }
     }
 }
@@ -37,25 +37,27 @@ pub enum Version {
     V1_06_0,
 }
 
-impl From<(u32, u32, u32)> for Version {
-    fn from(v: (u32, u32, u32)) -> Self {
+impl TryFrom<(u32, u32, u32)> for Version {
+    type Error = ();
+
+    fn try_from(v: (u32, u32, u32)) -> Result<Self, ()> {
         match v {
-            (1, 2, 0) => Version::V1_02_0,
-            (1, 3, 0) => Version::V1_03_0,
-            (1, 4, 0) => Version::V1_04_0,
-            (1, 5, 0) => Version::V1_05_0,
-            (1, 6, 0) => Version::V1_06_0,
+            (1, 2, 0) => Ok(Version::V1_02_0),
+            (1, 3, 0) => Ok(Version::V1_03_0),
+            (1, 4, 0) => Ok(Version::V1_04_0),
+            (1, 5, 0) => Ok(Version::V1_05_0),
+            (1, 6, 0) => Ok(Version::V1_06_0),
             (maj, min, patch) => {
-                tracing::error!("Unrecognized version {maj}.{min:02}.{patch}");
-                panic!()
-            },
+                log::error!("Unrecognized version {maj}.{min:02}.{patch}");
+                Err(())
+            }
         }
     }
 }
 
-impl Version {
-    pub fn tuple(&self) -> (u8, u8, u8) {
-        match self {
+impl From<Version> for (u32, u32, u32) {
+    fn from(v: Version) -> Self {
+        match v {
             Version::V1_02_0 => (1, 2, 0),
             Version::V1_03_0 => (1, 3, 0),
             Version::V1_04_0 => (1, 4, 0),
@@ -131,3 +133,4 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     show_cursor: 0x3d8990c,
     no_logo: 0xe1b51b,
 };
+
