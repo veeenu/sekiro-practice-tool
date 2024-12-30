@@ -243,7 +243,7 @@ impl PracticeTool {
 
                 ui.same_line();
 
-                                if ui.small_button("Indicators") {
+                if ui.small_button("Indicators") {
                     ui.open_popup("##indicators_window");
                 }
 

@@ -7,8 +7,8 @@ use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
 use crate::widgets::flag::flag_widget;
-use crate::widgets::label::label_widget;
 use crate::widgets::group::group;
+use crate::widgets::label::label_widget;
 use crate::widgets::nudge_pos::nudge_position;
 use crate::widgets::position::save_position;
 use crate::widgets::quitout::quitout;
@@ -77,9 +77,10 @@ impl TryFrom<IndicatorConfig> for Indicator {
             "position" => {
                 Ok(Indicator { indicator: IndicatorType::Position, enabled: indicator.enabled })
             },
-            "position_change" => {
-                Ok(Indicator { indicator: IndicatorType::PositionChange, enabled: indicator.enabled })
-            },
+            "position_change" => Ok(Indicator {
+                indicator: IndicatorType::PositionChange,
+                enabled: indicator.enabled,
+            }),
             "game_version" => {
                 Ok(Indicator { indicator: IndicatorType::GameVersion, enabled: indicator.enabled })
             },
@@ -159,9 +160,7 @@ impl CfgCommand {
             CfgCommand::Position { position, save } => {
                 save_position(chains.position.clone(), position.into_option(), save)
             },
-            CfgCommand::Label { label } => {
-                label_widget(label.as_str())
-            },
+            CfgCommand::Label { label } => label_widget(label.as_str()),
             CfgCommand::NudgePosition { nudge, nudge_up, nudge_down } => {
                 nudge_position(chains.position.clone(), nudge, nudge_up, nudge_down)
             },
