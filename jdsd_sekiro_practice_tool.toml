@@ -21,6 +21,7 @@ commands = [
     { position = "k", save = "rshift+k" },
   ]},
   { group = "Render Flags", commands = [
+    { label = "Debug Render flags:" },
     { flag = "debug_render0" },
     { flag = "debug_render1" },
     { flag = "debug_render2" },
