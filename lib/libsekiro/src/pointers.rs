@@ -29,6 +29,10 @@ pub struct Pointers {
     pub debug_render7: Bitflag<u8>,
     pub debug_render8: Bitflag<u8>,
 
+    pub debug_show: Bitflag<u8>,
+    pub grapple_debug_path: Bitflag<u8>,
+    pub grapple_debug_col: Bitflag<u8>,
+
     pub player_no_goods_consume: Bitflag<u8>,
     pub player_no_resource_item_consume: Bitflag<u8>,
     pub player_no_revival_consume: Bitflag<u8>,
@@ -68,6 +72,8 @@ impl Pointers {
             player_position,
             debug_flags,
             show_cursor,
+            debug_show,
+            grapple_debug,
             ..
         } = base_addresses;
 
@@ -84,6 +90,11 @@ impl Pointers {
         let offs_player_exterminate_stamina: isize = match *VERSION {
             Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => -1,
             Version::V1_05_0 | Version::V1_06_0 => -1,
+        };
+
+        let offs_grapple_debug: usize = match *VERSION {
+            Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => 0xEC8,
+            Version::V1_05_0 | Version::V1_06_0 => 0xF68,
         };
 
         Pointers {
@@ -105,6 +116,10 @@ impl Pointers {
             debug_render6: bitflag!(0b1; debug_render + 8),
             debug_render7: bitflag!(0b1; debug_render + 9),
             debug_render8: bitflag!(0b1; debug_render + 0xC),
+
+            debug_show: bitflag!(0b1; debug_show, 0x6F),
+            grapple_debug_path: bitflag!(0b1; grapple_debug, 0xC8, 0x20, offs_grapple_debug),
+            grapple_debug_col: bitflag!(0b1; grapple_debug, 0xC8, 0x20, offs_grapple_debug + 0x2),
 
             player_no_goods_consume: bitflag!(0b1; debug_flags),
             player_no_resource_item_consume: bitflag!(0b1; debug_flags + 1),

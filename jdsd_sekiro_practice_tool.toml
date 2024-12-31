@@ -29,7 +29,12 @@ commands = [
     { flag = "debug_render5" },
     { flag = "debug_render6" },
     { flag = "debug_render7" },
-    { flag = "debug_render8" }
+    { flag = "debug_render8" },
+    { label = "" },
+    { label = "Below needs Debug Show enabled:" },
+    { flag = "debug_show" },
+    { flag = "grapple_debug_path" },
+    { flag = "grapple_debug_col" },
   ]},
   { quitout = "P" }
 ]
