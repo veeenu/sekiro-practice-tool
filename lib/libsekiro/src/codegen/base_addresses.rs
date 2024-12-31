@@ -14,6 +14,7 @@ pub struct BaseAddresses {
     pub font_patch: usize,
     pub debug_show: usize,
     pub grapple_debug: usize,
+    pub fps: usize,
 }
 
 impl BaseAddresses {
@@ -30,6 +31,7 @@ impl BaseAddresses {
             font_patch: self.font_patch,
             debug_show: self.debug_show + base,
             grapple_debug: self.grapple_debug + base,
+            fps: self.fps + base,
         }
     }
 }
@@ -97,6 +99,7 @@ pub const BASE_ADDRESSES_1_02_0: BaseAddresses = BaseAddresses {
     font_patch: 0x2505974,
     debug_show: 0x3b67f98,
     grapple_debug: 0x3b5b240,
+    fps: 0x3c8c2c8,
 };
 
 pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
@@ -111,6 +114,7 @@ pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
     font_patch: 0x25068e4,
     debug_show: 0x3b68fd8,
     grapple_debug: 0x3b5c280,
+    fps: 0x3c8d308,
 };
 
 pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
@@ -125,6 +129,7 @@ pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
     font_patch: 0x25068e4,
     debug_show: 0x3b68fd8,
     grapple_debug: 0x3b5c280,
+    fps: 0x3c8d308,
 };
 
 pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
@@ -139,6 +144,7 @@ pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
     font_patch: 0x263b894,
     debug_show: 0x3d7a2e8,
     grapple_debug: 0x3d6d5a0,
+    fps: 0x3e9f6a8,
 };
 
 pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
@@ -153,5 +159,6 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     font_patch: 0x263bc14,
     debug_show: 0x3d7a388,
     grapple_debug: 0x3d6d640,
+    fps: 0x3e9f748,
 };
 
