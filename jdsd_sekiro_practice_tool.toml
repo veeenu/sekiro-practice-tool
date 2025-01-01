@@ -1,5 +1,6 @@
 commands = [
   { savefile_manager = "o", hotkey_back = "q", hotkey_close = "escape" },
+  { cycle_speed = [0.5, 1.0, 2.0, 5.0], hotkey = "8" },
   { flag = "player_no_goods_consume", hotkey = "1" },
   { flag = "player_no_resource_item_consume", hotkey = "1" },
   { flag = "player_no_revival_consume", hotkey = "1" },

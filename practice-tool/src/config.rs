@@ -6,6 +6,7 @@ use practice_tool_core::key::Key;
 use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
+use crate::widgets::cycle_speed::cycle_speed;
 use crate::widgets::flag::flag_widget;
 use crate::widgets::group::group;
 use crate::widgets::label::label_widget;
@@ -133,6 +134,11 @@ enum CfgCommand {
         position: PlaceholderOption<Key>,
         save: Option<Key>,
     },
+    CycleSpeed {
+        #[serde(rename = "cycle_speed")]
+        values: Vec<f32>,
+        hotkey: Option<Key>,
+    },
     Label {
         #[serde(rename = "label")]
         label: String,
@@ -168,6 +174,9 @@ impl CfgCommand {
             CfgCommand::Label { label } => label_widget(label.as_str()),
             CfgCommand::NudgePosition { nudge, nudge_up, nudge_down } => {
                 nudge_position(chains.position.clone(), nudge, nudge_up, nudge_down)
+            },
+            CfgCommand::CycleSpeed { values, hotkey } => {
+                cycle_speed(values.as_slice(), chains.anim_speed.clone(), hotkey)
             },
             CfgCommand::Quitout { hotkey } => quitout(chains.quitout.clone(), hotkey.into_option()),
             CfgCommand::Group { label, commands } => group(

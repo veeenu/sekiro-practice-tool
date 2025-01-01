@@ -15,6 +15,7 @@ pub struct BaseAddresses {
     pub debug_show: usize,
     pub grapple_debug: usize,
     pub fps: usize,
+    pub anim_speed: usize,
 }
 
 impl BaseAddresses {
@@ -32,6 +33,7 @@ impl BaseAddresses {
             debug_show: self.debug_show + base,
             grapple_debug: self.grapple_debug + base,
             fps: self.fps + base,
+            anim_speed: self.anim_speed,
         }
     }
 }
@@ -100,6 +102,7 @@ pub const BASE_ADDRESSES_1_02_0: BaseAddresses = BaseAddresses {
     debug_show: 0x3b67f98,
     grapple_debug: 0x3b5b240,
     fps: 0x3c8c2c8,
+    anim_speed: 0x3b67df0,
 };
 
 pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
@@ -115,6 +118,7 @@ pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
     debug_show: 0x3b68fd8,
     grapple_debug: 0x3b5c280,
     fps: 0x3c8d308,
+    anim_speed: 0x3b68e30,
 };
 
 pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
@@ -130,6 +134,7 @@ pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
     debug_show: 0x3b68fd8,
     grapple_debug: 0x3b5c280,
     fps: 0x3c8d308,
+    anim_speed: 0x3b68e30,
 };
 
 pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
@@ -145,6 +150,7 @@ pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
     debug_show: 0x3d7a2e8,
     grapple_debug: 0x3d6d5a0,
     fps: 0x3e9f6a8,
+    anim_speed: 0x3d7a140,
 };
 
 pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
@@ -160,5 +166,6 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     debug_show: 0x3d7a388,
     grapple_debug: 0x3d6d640,
     fps: 0x3e9f748,
+    anim_speed: 0x3d7a1e0,
 };
 

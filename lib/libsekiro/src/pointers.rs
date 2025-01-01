@@ -16,6 +16,8 @@ pub struct Pointers {
 
     pub fps: PointerChain<f32>,
 
+    pub anim_speed: PointerChain<f32>,
+
     pub render_world: Bitflag<u8>,
     pub render_objects: Bitflag<u8>,
     pub render_mobs: Bitflag<u8>,
@@ -77,6 +79,7 @@ impl Pointers {
             debug_show,
             grapple_debug,
             fps,
+            anim_speed,
             ..
         } = base_addresses;
 
@@ -107,6 +110,8 @@ impl Pointers {
             igt: pointer_chain!(igt, 0x9C),
 
             fps: pointer_chain!(fps, 0x2BC),
+
+            anim_speed: pointer_chain!(anim_speed, 0x48, 0x28, 0xA40, 0x4C0, 0x250, 0x10, 0xD00),
 
             render_world: bitflag!(0b1; render_world),
             render_objects: bitflag!(0b1; render_world+1),
