@@ -117,13 +117,6 @@ pub fn get_base_addresses() {
             7,
             true,
         ),
-        aob_indirect_twice(
-            "AnimSpeed",
-            &["48 8B 1D ?? ?? ?? ?? 48 8B F9 48 85 DB 74 76 8B 11 85 D2 78 70 8D 82 ?? ?? ?? ?? 3D ?? ?? ?? ?? 76 22 48 8B CB E8 ?? ?? ?? ??"],
-            3,
-            7,
-            false,
-        ),
     ];
 
     codegen::codegen_base_addresses(base_addresses_rs_path(), patches_paths(), aobs)
