@@ -1,13 +1,10 @@
 use std::cmp::Ordering;
-use std::fmt::Write;
+use std::fmt::{Debug, Write};
 
 use libsekiro::memedit::PointerChain;
 use practice_tool_core::key::Key;
 use practice_tool_core::widgets::store_value::{ReadWrite, StoreValue};
 use practice_tool_core::widgets::Widget;
-
-use hudhook::tracing::{error, info};
-use std::fmt::Debug;
 
 #[derive(Debug)]
 struct CycleSpeed {

@@ -111,7 +111,16 @@ impl Pointers {
 
             fps: pointer_chain!(fps, 0x2BC),
 
-            anim_speed: pointer_chain!(player_position, 0x48, 0x28, 0xA40, 0x4C0, 0x250, 0x10, 0xD00),
+            anim_speed: pointer_chain!(
+                player_position,
+                0x48,
+                0x28,
+                0xA40,
+                0x4C0,
+                0x250,
+                0x10,
+                0xD00
+            ),
 
             render_world: bitflag!(0b1; render_world),
             render_objects: bitflag!(0b1; render_world+1),

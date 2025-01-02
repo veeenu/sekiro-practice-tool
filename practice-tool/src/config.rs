@@ -88,9 +88,7 @@ impl TryFrom<IndicatorConfig> for Indicator {
             "game_version" => {
                 Ok(Indicator { indicator: IndicatorType::GameVersion, enabled: indicator.enabled })
             },
-            "fps" => {
-                Ok(Indicator { indicator: IndicatorType::Fps, enabled: indicator.enabled })
-            },
+            "fps" => Ok(Indicator { indicator: IndicatorType::Fps, enabled: indicator.enabled }),
             "framecount" => {
                 Ok(Indicator { indicator: IndicatorType::FrameCount, enabled: indicator.enabled })
             },
