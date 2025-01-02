@@ -6,6 +6,7 @@ use practice_tool_core::key::Key;
 use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
+use crate::widgets::cycle_color::cycle_color;
 use crate::widgets::cycle_speed::cycle_speed;
 use crate::widgets::flag::flag_widget;
 use crate::widgets::group::group;
@@ -139,6 +140,11 @@ enum CfgCommand {
         values: Vec<f32>,
         hotkey: Option<Key>,
     },
+    CycleColor {
+        #[serde(rename = "cycle_color")]
+        cycle_color: Vec<i32>,
+        hotkey: Option<Key>,
+    },
     Label {
         #[serde(rename = "label")]
         label: String,
@@ -177,6 +183,9 @@ impl CfgCommand {
             },
             CfgCommand::CycleSpeed { values, hotkey } => {
                 cycle_speed(values.as_slice(), chains.anim_speed.clone(), hotkey)
+            },
+            CfgCommand::CycleColor { cycle_color: values, hotkey } => {
+                cycle_color(values.as_slice(), chains.debug_color.clone(), hotkey)
             },
             CfgCommand::Quitout { hotkey } => quitout(chains.quitout.clone(), hotkey.into_option()),
             CfgCommand::Group { label, commands } => group(
@@ -275,10 +284,9 @@ impl TryFrom<String> for FlagSpec {
             (debug_render2, "Debug #2 (Objects)"),
             (debug_render3, "Debug #3 (Low Col?)"),
             (debug_render4, "Debug #4 (Low Col?)"),
-            (debug_render5, "Debug #5 (?)"),
-            (debug_render6, "Debug #6 (?)"),
+            (debug_render5, "Debug #5 (Walls?)"),
+            (debug_render6, "Debug #6 (Wall Jump Col)"),
             (debug_render7, "Debug #7 (Edge/Cliff Col)"),
-            (debug_render8, "Debug #8 (Unique Colors)"),
             (debug_show, "Debug Show"),
             (grapple_debug_path, "Grapple Debug (Path)"),
             (grapple_debug_col, "Grapple Debug (Col)"),

@@ -31,7 +31,8 @@ pub struct Pointers {
     pub debug_render5: Bitflag<u8>,
     pub debug_render6: Bitflag<u8>,
     pub debug_render7: Bitflag<u8>,
-    pub debug_render8: Bitflag<u8>,
+
+    pub debug_color: PointerChain<i32>,
 
     pub debug_show: Bitflag<u8>,
     pub grapple_debug_path: Bitflag<u8>,
@@ -124,7 +125,8 @@ impl Pointers {
             debug_render5: bitflag!(0b1; debug_render + 7),
             debug_render6: bitflag!(0b1; debug_render + 8),
             debug_render7: bitflag!(0b1; debug_render + 9),
-            debug_render8: bitflag!(0b1; debug_render + 0xC),
+
+            debug_color: pointer_chain!(debug_render + 0xC),
 
             debug_show: bitflag!(0b1; debug_show, 0x6F),
             grapple_debug_path: bitflag!(0b1; grapple_debug, 0xC8, 0x20, offs_grapple_debug),
