@@ -16,7 +16,7 @@ lazy_static! {
     pub static ref VERSION: Version = get_version();
 }
 
-fn get_version() -> Version {
+pub fn get_version() -> Version {
     let file_path = {
         let mut buf = vec![0u16; MAX_PATH as usize];
         unsafe { GetModuleFileNameW(GetModuleHandleW(PCWSTR(null_mut())).unwrap(), &mut buf) };
@@ -51,5 +51,5 @@ fn get_version() -> Version {
     let patch = (version_info.dwFileVersionLS >> 16) & 0xffff;
 
     info!("Version {} {} {}", major, minor, patch);
-    Version::from((major, minor, patch))
+    Version::try_from((major, minor, patch)).unwrap()
 }

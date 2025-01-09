@@ -1,5 +1,6 @@
 commands = [
   { savefile_manager = "o", hotkey_back = "q", hotkey_close = "escape" },
+  { cycle_speed = [0.5, 1.0, 2.0, 5.0], hotkey = "8" },
   { flag = "player_no_goods_consume", hotkey = "1" },
   { flag = "player_no_resource_item_consume", hotkey = "1" },
   { flag = "player_no_revival_consume", hotkey = "1" },
@@ -21,6 +22,7 @@ commands = [
     { position = "k", save = "rshift+k" },
   ]},
   { group = "Render Flags", commands = [
+    { label = "Debug Render flags:" },
     { flag = "debug_render0" },
     { flag = "debug_render1" },
     { flag = "debug_render2" },
@@ -29,7 +31,12 @@ commands = [
     { flag = "debug_render5" },
     { flag = "debug_render6" },
     { flag = "debug_render7" },
-    { flag = "debug_render8" }
+    { cycle_color = [0, 1, 2, 3] },
+    { label = "" },
+    { label = "Below needs Debug Show enabled:" },
+    { flag = "debug_show" },
+    { flag = "grapple_debug_path" },
+    { flag = "grapple_debug_col" },
   ]},
   { quitout = "P" }
 ]
@@ -39,3 +46,12 @@ log_level = "INFO"
 display = "0"
 dxgi_debug = false
 show_console = false
+indicators = [
+  { indicator = "game_version", enabled = true },
+  { indicator = "igt", enabled = true },
+  { indicator = "position", enabled = false },
+  { indicator = "position_change", enabled = false },
+  { indicator = "fps", enabled = false },
+  { indicator = "framecount", enabled = false },
+  { indicator = "imgui_debug", enabled = false }
+]

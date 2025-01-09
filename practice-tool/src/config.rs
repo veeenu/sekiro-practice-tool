@@ -6,8 +6,11 @@ use practice_tool_core::key::Key;
 use practice_tool_core::widgets::Widget;
 use serde::Deserialize;
 
+use crate::widgets::cycle_color::cycle_color;
+use crate::widgets::cycle_speed::cycle_speed;
 use crate::widgets::flag::flag_widget;
 use crate::widgets::group::group;
+use crate::widgets::label::label_widget;
 use crate::widgets::nudge_pos::nudge_position;
 use crate::widgets::position::save_position;
 use crate::widgets::quitout::quitout;
@@ -31,30 +34,67 @@ pub(crate) struct Settings {
     pub(crate) indicators: Vec<Indicator>,
 }
 
-#[derive(Deserialize, Copy, Clone, Debug)]
-#[serde(try_from = "String")]
-pub(crate) enum Indicator {
+#[derive(Debug, Deserialize, Clone)]
+pub(crate) enum IndicatorType {
     Igt,
     Position,
+    PositionChange,
     GameVersion,
     ImguiDebug,
+    Fps,
+    FrameCount,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(try_from = "IndicatorConfig")]
+pub(crate) struct Indicator {
+    pub(crate) indicator: IndicatorType,
+    pub(crate) enabled: bool,
 }
 
 impl Indicator {
     fn default_set() -> Vec<Indicator> {
-        vec![Indicator::GameVersion, Indicator::Position, Indicator::Igt]
+        vec![
+            Indicator { indicator: IndicatorType::GameVersion, enabled: true },
+            Indicator { indicator: IndicatorType::Igt, enabled: true },
+            Indicator { indicator: IndicatorType::Position, enabled: false },
+            Indicator { indicator: IndicatorType::PositionChange, enabled: false },
+            Indicator { indicator: IndicatorType::Fps, enabled: false },
+            Indicator { indicator: IndicatorType::FrameCount, enabled: false },
+            Indicator { indicator: IndicatorType::ImguiDebug, enabled: false },
+        ]
     }
 }
 
-impl TryFrom<String> for Indicator {
+#[derive(Debug, Deserialize, Clone)]
+struct IndicatorConfig {
+    indicator: String,
+    enabled: bool,
+}
+
+impl TryFrom<IndicatorConfig> for Indicator {
     type Error = String;
 
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        match value.as_str() {
-            "igt" => Ok(Indicator::Igt),
-            "position" => Ok(Indicator::Position),
-            "game_version" => Ok(Indicator::GameVersion),
-            "imgui_debug" => Ok(Indicator::ImguiDebug),
+    fn try_from(indicator: IndicatorConfig) -> Result<Self, Self::Error> {
+        match indicator.indicator.as_str() {
+            "igt" => Ok(Indicator { indicator: IndicatorType::Igt, enabled: indicator.enabled }),
+            "position" => {
+                Ok(Indicator { indicator: IndicatorType::Position, enabled: indicator.enabled })
+            },
+            "position_change" => Ok(Indicator {
+                indicator: IndicatorType::PositionChange,
+                enabled: indicator.enabled,
+            }),
+            "game_version" => {
+                Ok(Indicator { indicator: IndicatorType::GameVersion, enabled: indicator.enabled })
+            },
+            "fps" => Ok(Indicator { indicator: IndicatorType::Fps, enabled: indicator.enabled }),
+            "framecount" => {
+                Ok(Indicator { indicator: IndicatorType::FrameCount, enabled: indicator.enabled })
+            },
+            "imgui_debug" => {
+                Ok(Indicator { indicator: IndicatorType::ImguiDebug, enabled: indicator.enabled })
+            },
             value => Err(format!("Unrecognized indicator: {value}")),
         }
     }
@@ -93,6 +133,20 @@ enum CfgCommand {
         position: PlaceholderOption<Key>,
         save: Option<Key>,
     },
+    CycleSpeed {
+        #[serde(rename = "cycle_speed")]
+        values: Vec<f32>,
+        hotkey: Option<Key>,
+    },
+    CycleColor {
+        #[serde(rename = "cycle_color")]
+        cycle_color: Vec<i32>,
+        hotkey: Option<Key>,
+    },
+    Label {
+        #[serde(rename = "label")]
+        label: String,
+    },
     NudgePosition {
         nudge: f32,
         nudge_up: Option<Key>,
@@ -121,8 +175,15 @@ impl CfgCommand {
             CfgCommand::Position { position, save } => {
                 save_position(chains.position.clone(), position.into_option(), save)
             },
+            CfgCommand::Label { label } => label_widget(label.as_str()),
             CfgCommand::NudgePosition { nudge, nudge_up, nudge_down } => {
                 nudge_position(chains.position.clone(), nudge, nudge_up, nudge_down)
+            },
+            CfgCommand::CycleSpeed { values, hotkey } => {
+                cycle_speed(values.as_slice(), chains.anim_speed.clone(), hotkey)
+            },
+            CfgCommand::CycleColor { cycle_color: values, hotkey } => {
+                cycle_color(values.as_slice(), chains.debug_color.clone(), hotkey)
             },
             CfgCommand::Quitout { hotkey } => quitout(chains.quitout.clone(), hotkey.into_option()),
             CfgCommand::Group { label, commands } => group(
@@ -216,15 +277,17 @@ impl TryFrom<String> for FlagSpec {
             (render_objects, "Render Objects"),
             (render_mobs, "Render Mobs"),
             (render_effects, "Render Effects"),
-            (debug_render0, "Debug Render #0"),
-            (debug_render1, "Debug Render #1"),
-            (debug_render2, "Debug Render #2"),
-            (debug_render3, "Debug Render #3"),
-            (debug_render4, "Debug Render #4"),
-            (debug_render5, "Debug Render #5"),
-            (debug_render6, "Debug Render #6"),
-            (debug_render7, "Debug Render #7"),
-            (debug_render8, "Debug Render #8"),
+            (debug_render0, "Debug #0 (Low Col + Planes)"),
+            (debug_render1, "Debug #1 (High Col)"),
+            (debug_render2, "Debug #2 (Objects)"),
+            (debug_render3, "Debug #3 (Low Col?)"),
+            (debug_render4, "Debug #4 (Low Col?)"),
+            (debug_render5, "Debug #5 (Walls?)"),
+            (debug_render6, "Debug #6 (Wall Jump Col)"),
+            (debug_render7, "Debug #7 (Edge/Cliff Col)"),
+            (debug_show, "Debug Show"),
+            (grapple_debug_path, "Grapple Debug (Path)"),
+            (grapple_debug_col, "Grapple Debug (Col)"),
             (player_no_goods_consume, "No goods consume"),
             (player_no_resource_item_consume, "No resource consume"),
             (player_no_revival_consume, "No revival consume"),

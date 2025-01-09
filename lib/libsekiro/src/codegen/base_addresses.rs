@@ -11,6 +11,10 @@ pub struct BaseAddresses {
     pub debug_flags: usize,
     pub show_cursor: usize,
     pub no_logo: usize,
+    pub font_patch: usize,
+    pub debug_show: usize,
+    pub grapple_debug: usize,
+    pub fps: usize,
 }
 
 impl BaseAddresses {
@@ -23,7 +27,11 @@ impl BaseAddresses {
             player_position: self.player_position + base,
             debug_flags: self.debug_flags + base,
             show_cursor: self.show_cursor + base,
-            no_logo: self.no_logo + base,
+            no_logo: self.no_logo,
+            font_patch: self.font_patch,
+            debug_show: self.debug_show + base,
+            grapple_debug: self.grapple_debug + base,
+            fps: self.fps + base,
         }
     }
 }
@@ -37,25 +45,27 @@ pub enum Version {
     V1_06_0,
 }
 
-impl From<(u32, u32, u32)> for Version {
-    fn from(v: (u32, u32, u32)) -> Self {
+impl TryFrom<(u32, u32, u32)> for Version {
+    type Error = ();
+
+    fn try_from(v: (u32, u32, u32)) -> Result<Self, ()> {
         match v {
-            (1, 2, 0) => Version::V1_02_0,
-            (1, 3, 0) => Version::V1_03_0,
-            (1, 4, 0) => Version::V1_04_0,
-            (1, 5, 0) => Version::V1_05_0,
-            (1, 6, 0) => Version::V1_06_0,
+            (1, 2, 0) => Ok(Version::V1_02_0),
+            (1, 3, 0) => Ok(Version::V1_03_0),
+            (1, 4, 0) => Ok(Version::V1_04_0),
+            (1, 5, 0) => Ok(Version::V1_05_0),
+            (1, 6, 0) => Ok(Version::V1_06_0),
             (maj, min, patch) => {
-                tracing::error!("Unrecognized version {maj}.{min:02}.{patch}");
-                panic!()
+                log::error!("Unrecognized version {maj}.{min:02}.{patch}");
+                Err(())
             },
         }
     }
 }
 
-impl Version {
-    pub fn tuple(&self) -> (u8, u8, u8) {
-        match self {
+impl From<Version> for (u32, u32, u32) {
+    fn from(v: Version) -> Self {
+        match v {
             Version::V1_02_0 => (1, 2, 0),
             Version::V1_03_0 => (1, 3, 0),
             Version::V1_04_0 => (1, 4, 0),
@@ -86,6 +96,10 @@ pub const BASE_ADDRESSES_1_02_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b67f59,
     show_cursor: 0x3b77048,
     no_logo: 0xdebf2b,
+    font_patch: 0x2505974,
+    debug_show: 0x3b67f98,
+    grapple_debug: 0x3b5b240,
+    fps: 0x3c8c2c8,
 };
 
 pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
@@ -97,6 +111,10 @@ pub const BASE_ADDRESSES_1_03_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
     no_logo: 0xdec85b,
+    font_patch: 0x25068e4,
+    debug_show: 0x3b68fd8,
+    grapple_debug: 0x3b5c280,
+    fps: 0x3c8d308,
 };
 
 pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
@@ -108,6 +126,10 @@ pub const BASE_ADDRESSES_1_04_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3b68f99,
     show_cursor: 0x3b78088,
     no_logo: 0xdec85b,
+    font_patch: 0x25068e4,
+    debug_show: 0x3b68fd8,
+    grapple_debug: 0x3b5c280,
+    fps: 0x3c8d308,
 };
 
 pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
@@ -119,6 +141,10 @@ pub const BASE_ADDRESSES_1_05_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3d7a2c9,
     show_cursor: 0x3d8986c,
     no_logo: 0xe1b1ab,
+    font_patch: 0x263b894,
+    debug_show: 0x3d7a2e8,
+    grapple_debug: 0x3d6d5a0,
+    fps: 0x3e9f6a8,
 };
 
 pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
@@ -130,4 +156,8 @@ pub const BASE_ADDRESSES_1_06_0: BaseAddresses = BaseAddresses {
     debug_flags: 0x3d7a369,
     show_cursor: 0x3d8990c,
     no_logo: 0xe1b51b,
+    font_patch: 0x263bc14,
+    debug_show: 0x3d7a388,
+    grapple_debug: 0x3d6d640,
+    fps: 0x3e9f748,
 };

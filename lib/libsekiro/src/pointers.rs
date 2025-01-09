@@ -14,6 +14,10 @@ pub struct Pointers {
     pub show_cursor: Bitflag<u8>,
     pub igt: PointerChain<u32>,
 
+    pub fps: PointerChain<f32>,
+
+    pub anim_speed: PointerChain<f32>,
+
     pub render_world: Bitflag<u8>,
     pub render_objects: Bitflag<u8>,
     pub render_mobs: Bitflag<u8>,
@@ -27,7 +31,12 @@ pub struct Pointers {
     pub debug_render5: Bitflag<u8>,
     pub debug_render6: Bitflag<u8>,
     pub debug_render7: Bitflag<u8>,
-    pub debug_render8: Bitflag<u8>,
+
+    pub debug_color: PointerChain<i32>,
+
+    pub debug_show: Bitflag<u8>,
+    pub grapple_debug_path: Bitflag<u8>,
+    pub grapple_debug_col: Bitflag<u8>,
 
     pub player_no_goods_consume: Bitflag<u8>,
     pub player_no_resource_item_consume: Bitflag<u8>,
@@ -68,6 +77,9 @@ impl Pointers {
             player_position,
             debug_flags,
             show_cursor,
+            debug_show,
+            grapple_debug,
+            fps,
             ..
         } = base_addresses;
 
@@ -86,11 +98,29 @@ impl Pointers {
             Version::V1_05_0 | Version::V1_06_0 => -1,
         };
 
+        let offs_grapple_debug: usize = match *VERSION {
+            Version::V1_02_0 | Version::V1_03_0 | Version::V1_04_0 => 0xEC8,
+            Version::V1_05_0 | Version::V1_06_0 => 0xF68,
+        };
+
         Pointers {
             position: pointer_chain!(player_position, 0x48, 0x28, 0x80),
             quitout: pointer_chain!(quitout, 0x23C),
             show_cursor: bitflag!(0b1; show_cursor),
             igt: pointer_chain!(igt, 0x9C),
+
+            fps: pointer_chain!(fps, 0x2BC),
+
+            anim_speed: pointer_chain!(
+                player_position,
+                0x48,
+                0x28,
+                0xA40,
+                0x4C0,
+                0x250,
+                0x10,
+                0xD00
+            ),
 
             render_world: bitflag!(0b1; render_world),
             render_objects: bitflag!(0b1; render_world+1),
@@ -104,7 +134,12 @@ impl Pointers {
             debug_render5: bitflag!(0b1; debug_render + 7),
             debug_render6: bitflag!(0b1; debug_render + 8),
             debug_render7: bitflag!(0b1; debug_render + 9),
-            debug_render8: bitflag!(0b1; debug_render + 0xC),
+
+            debug_color: pointer_chain!(debug_render + 0xC),
+
+            debug_show: bitflag!(0b1; debug_show, 0x6F),
+            grapple_debug_path: bitflag!(0b1; grapple_debug, 0xC8, 0x20, offs_grapple_debug),
+            grapple_debug_col: bitflag!(0b1; grapple_debug, 0xC8, 0x20, offs_grapple_debug + 0x2),
 
             player_no_goods_consume: bitflag!(0b1; debug_flags),
             player_no_resource_item_consume: bitflag!(0b1; debug_flags + 1),

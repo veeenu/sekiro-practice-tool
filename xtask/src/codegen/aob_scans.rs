@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use practice_tool_tasks::codegen::{self, aob_indirect_twice};
+use practice_tool_tasks::codegen::{self, aob_direct, aob_indirect_twice};
 use textwrap::dedent;
 
 fn patches_paths() -> impl Iterator<Item = PathBuf> {
@@ -15,7 +15,7 @@ fn patches_paths() -> impl Iterator<Item = PathBuf> {
         .read_dir()
         .expect("Couldn't scan patches directory")
         .map(Result::unwrap)
-        .map(|dir| dir.path().join("Game").join("sekiro.exe"))
+        .map(|dir| dir.path().join("sekiro.exe"))
 }
 
 fn base_addresses_rs_path() -> PathBuf {
@@ -24,6 +24,7 @@ fn base_addresses_rs_path() -> PathBuf {
         .nth(1)
         .unwrap()
         .to_path_buf()
+        .join("lib")
         .join("libsekiro")
         .join("src")
         .join("codegen")
@@ -83,14 +84,44 @@ pub fn get_base_addresses() {
             7,
             true,
         ),
-        aob_indirect_twice(
+        aob_direct(
             "NoLogo",
             &[
                 r#"74 30 48 8D 54 24 30 48 8B CD E8 ?? ?? ?? ?? 90 BB 01 00 00 00 89 5C 24 20 44 0F B6 4E 04"#,
             ],
-            0,
-            0,
             false,
+        ),
+        aob_direct("FontPatch", &["48 8b fa 49 8b f0 48 8b d9"], false),
+        aob_indirect_twice(
+            "DebugShow",
+            &["48 8B 05 ?? ?? ?? ?? 48 8B D9 48 85 C0 75 2E 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? \
+               4C 8B C8 4C 8D 05 ?? ?? ?? ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? \
+               48 8B 05 ?? ?? ?? ?? 48 8B 80 ?? ?? ?? ?? 48 85 C0 75 07 48 8B 83 ?? ?? ?? ?? 48 \
+               83 C4 20 5B C3"],
+            3,
+            7,
+            true,
+        ),
+        aob_indirect_twice(
+            "GrappleDebug",
+            &["48 8B 05 ?? ?? ?? ?? 48 85 C0 75 2E 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B C8 \
+               4C 8D 05 ?? ?? ?? ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 05 \
+               ?? ?? ?? ?? 48 8B 80 ?? ?? ?? ?? 48 8D 54 24 50 48 8D 4C 24 40 48 8B 58 08 E8 ?? \
+               ?? ?? ?? 4C 8D 4C 24 40 C7 44 24 28 ?? ?? ?? ?? 4C 8D 84 24 ?? ?? ?? ?? F3 0F 11 \
+               74 24 20"],
+            3,
+            7,
+            true,
+        ),
+        aob_indirect_twice(
+            "Fps",
+            &["48 8B 0D ?? ?? ?? ?? 48 85 C9 75 2E 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B C8 \
+               4C 8D 05 ?? ?? ?? ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D \
+               ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 0F 94 C0 48 83 C4 28 C3 CC CC CC 40 53 48 83 EC \
+               20 48 8B D9 48 8B 0D ?? ?? ?? ?? 48 85 C9"],
+            3,
+            7,
+            true,
         ),
     ];
 
