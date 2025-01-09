@@ -238,8 +238,6 @@ impl PracticeTool {
             .build(|| {
                 ui.text("johndisandonato's Practice Tool");
 
-                // ui.same_line();
-
                 if ui.small_button("Open") {
                     self.ui_state = UiState::MenuOpen;
                 }
