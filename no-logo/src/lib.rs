@@ -15,7 +15,7 @@ use windows::Win32::System::Memory::{
 use windows::Win32::System::SystemInformation::GetSystemDirectoryW;
 use windows::Win32::System::SystemServices::DLL_PROCESS_ATTACH;
 
-type FnDirectInput8Create = unsafe extern "stdcall" fn(
+type FnDirectInput8Create = unsafe extern "system" fn(
     _: HMODULE,
     _: u32,
     _: *const c_void,
@@ -23,9 +23,9 @@ type FnDirectInput8Create = unsafe extern "stdcall" fn(
     _: *const c_void,
 ) -> HRESULT;
 
-type FnHResult = unsafe extern "stdcall" fn() -> HRESULT;
+type FnHResult = unsafe extern "system" fn() -> HRESULT;
 type FnGetClassObject =
-    unsafe extern "stdcall" fn(*const c_void, *const c_void, *const c_void) -> HRESULT;
+    unsafe extern "system" fn(*const c_void, *const c_void, *const c_void) -> HRESULT;
 
 static SYMBOLS: Lazy<(FnDirectInput8Create, FnHResult, FnGetClassObject, FnHResult, FnHResult)> =
     Lazy::new(|| unsafe {
@@ -36,19 +36,19 @@ static SYMBOLS: Lazy<(FnDirectInput8Create, FnHResult, FnGetClassObject, FnHResu
 
         (
             mem::transmute::<ProcType, FnDirectInput8Create>(
-                GetProcAddress(module, PCSTR("DirectInput8Create\0".as_ptr())).unwrap(),
+                GetProcAddress(module, PCSTR(c"DirectInput8Create".as_ptr().cast())).unwrap(),
             ),
             mem::transmute::<ProcType, FnHResult>(
-                GetProcAddress(module, PCSTR("DllCanUnloadNow\0".as_ptr())).unwrap(),
+                GetProcAddress(module, PCSTR(c"DllCanUnloadNow".as_ptr().cast())).unwrap(),
             ),
             mem::transmute::<ProcType, FnGetClassObject>(
-                GetProcAddress(module, PCSTR("DllGetClassObject\0".as_ptr())).unwrap(),
+                GetProcAddress(module, PCSTR(c"DllGetClassObject".as_ptr().cast())).unwrap(),
             ),
             mem::transmute::<ProcType, FnHResult>(
-                GetProcAddress(module, PCSTR("DllRegisterServer\0".as_ptr())).unwrap(),
+                GetProcAddress(module, PCSTR(c"DllRegisterServer".as_ptr().cast())).unwrap(),
             ),
             mem::transmute::<ProcType, FnHResult>(
-                GetProcAddress(module, PCSTR("DllUnregisterServer\0".as_ptr())).unwrap(),
+                GetProcAddress(module, PCSTR(c"DllUnregisterServer".as_ptr().cast())).unwrap(),
             ),
         )
     });
@@ -81,7 +81,7 @@ unsafe fn apply_patch() {
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern "stdcall" fn DirectInput8Create(
+pub unsafe extern "system" fn DirectInput8Create(
     a: HMODULE,
     b: u32,
     c: *const c_void,

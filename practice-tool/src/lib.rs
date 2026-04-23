@@ -40,7 +40,7 @@ use windows::Win32::System::SystemInformation::GetSystemDirectoryW;
 use windows::Win32::System::SystemServices::DLL_PROCESS_ATTACH;
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_RSHIFT};
 
-type FDirectInput8Create = unsafe extern "stdcall" fn(
+type FDirectInput8Create = unsafe extern "system" fn(
     hinst: HINSTANCE,
     dwversion: u32,
     riidltf: *const GUID,
@@ -67,7 +67,7 @@ static DIRECTINPUT8CREATE: Lazy<FDirectInput8Create> = Lazy::new(|| unsafe {
 });
 
 #[no_mangle]
-unsafe extern "stdcall" fn DirectInput8Create(
+unsafe extern "system" fn DirectInput8Create(
     hinst: HINSTANCE,
     dwversion: u32,
     riidltf: *const GUID,
@@ -155,12 +155,14 @@ fn await_rshift() -> bool {
 
 #[no_mangle]
 #[allow(clippy::missing_safety_doc)]
-pub unsafe extern "stdcall" fn DllMain(hmodule: HINSTANCE, reason: u32, _: *mut c_void) {
+pub unsafe extern "system" fn DllMain(hmodule: HINSTANCE, reason: u32, _: *mut c_void) {
     if reason == DLL_PROCESS_ATTACH {
         trace!("DllMain()");
         Lazy::force(&DIRECTINPUT8CREATE);
 
+        let hmodule_ptr = hmodule.0 as usize;
         thread::spawn(move || {
+            let hmodule = HINSTANCE(hmodule_ptr as *mut c_void);
             if util::get_dll_path()
                 .and_then(|path| {
                     path.file_name().map(|s| s.to_string_lossy().to_lowercase() == "dinput8.dll")
